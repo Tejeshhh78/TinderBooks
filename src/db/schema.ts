@@ -94,3 +94,117 @@ export const demoData = sqliteTable("demo_data", {
   limit: integer("limit").notNull(),
   reviewer: text("reviewer").notNull(),
 });
+
+/**
+ * BookSwap feature tables
+ */
+
+// User profile extensions
+export const userProfile = sqliteTable("user_profile", {
+  id: text("id").primaryKey(),
+  userId: text("user_id")
+    .notNull()
+    .unique()
+    .references(() => user.id, { onDelete: "cascade" }),
+  bio: text("bio"),
+  location: text("location"),
+  favoriteGenres: text("favorite_genres"), // JSON string array
+  createdAt: integer("created_at", { mode: "timestamp_ms" })
+    .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
+    .notNull(),
+  updatedAt: integer("updated_at", { mode: "timestamp_ms" })
+    .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
+    .$onUpdate(() => new Date())
+    .notNull(),
+});
+
+// Books table
+export const book = sqliteTable("book", {
+  id: text("id").primaryKey(),
+  title: text("title").notNull(),
+  author: text("author").notNull(),
+  genre: text("genre").notNull(),
+  condition: text("condition", { enum: ["new", "like-new", "good", "fair"] }).notNull(),
+  coverUrl: text("cover_url"),
+  description: text("description"),
+  createdAt: integer("created_at", { mode: "timestamp_ms" })
+    .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
+    .notNull(),
+  updatedAt: integer("updated_at", { mode: "timestamp_ms" })
+    .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
+    .$onUpdate(() => new Date())
+    .notNull(),
+});
+
+// User Books junction table (have/want)
+export const userBook = sqliteTable("user_book", {
+  id: text("id").primaryKey(),
+  userId: text("user_id")
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
+  bookId: text("book_id")
+    .notNull()
+    .references(() => book.id, { onDelete: "cascade" }),
+  type: text("type", { enum: ["have", "want"] }).notNull(),
+  createdAt: integer("created_at", { mode: "timestamp_ms" })
+    .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
+    .notNull(),
+});
+
+// Swipes table (track user swipes on books)
+export const swipe = sqliteTable("swipe", {
+  id: text("id").primaryKey(),
+  userId: text("user_id")
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
+  bookId: text("book_id")
+    .notNull()
+    .references(() => book.id, { onDelete: "cascade" }),
+  direction: text("direction", { enum: ["like", "pass"] }).notNull(),
+  createdAt: integer("created_at", { mode: "timestamp_ms" })
+    .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
+    .notNull(),
+});
+
+// Matches table
+export const match = sqliteTable("match", {
+  id: text("id").primaryKey(),
+  user1Id: text("user1_id")
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
+  user2Id: text("user2_id")
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
+  book1Id: text("book1_id")
+    .notNull()
+    .references(() => book.id, { onDelete: "cascade" }),
+  book2Id: text("book2_id")
+    .notNull()
+    .references(() => book.id, { onDelete: "cascade" }),
+  status: text("status", { enum: ["pending", "accepted", "declined", "completed"] })
+    .notNull()
+    .default("pending"),
+  createdAt: integer("created_at", { mode: "timestamp_ms" })
+    .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
+    .notNull(),
+  updatedAt: integer("updated_at", { mode: "timestamp_ms" })
+    .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
+    .$onUpdate(() => new Date())
+    .notNull(),
+});
+
+// Messages table
+export const message = sqliteTable("message", {
+  id: text("id").primaryKey(),
+  matchId: text("match_id")
+    .notNull()
+    .references(() => match.id, { onDelete: "cascade" }),
+  senderId: text("sender_id")
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
+  content: text("content").notNull(),
+  read: integer("read", { mode: "boolean" }).notNull().default(false),
+  createdAt: integer("created_at", { mode: "timestamp_ms" })
+    .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
+    .notNull(),
+});

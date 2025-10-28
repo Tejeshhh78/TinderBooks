@@ -1,4 +1,6 @@
-# Simple full-stack starter
+# TinderBooks - Book Exchange Platform
+
+A modern book swapping platform where users can discover, match, and exchange books with other readers. Built with Next.js 15, featuring a Tinder-style swipe interface for discovering books and a dashboard for analytics.
 
 Used deps:
 
@@ -8,6 +10,15 @@ Used deps:
 - Styling: Tailwind v4
 - Auth: better-auth
 - Components: shadcn/ui (radix-ui based)
+
+## Features
+
+- 📚 **Book Management** - Add books you have and books you want
+- 🔄 **Swipe Interface** - Tinder-style book discovery
+- 💬 **Messaging** - Chat with matched users
+- 🤝 **Smart Matching** - Connect with users who have books you want
+- 👤 **User Profiles** - Manage your reading preferences
+- 📊 **Dashboard** - Analytics and data visualization
 
 
 ## Getting Started
@@ -31,7 +42,7 @@ You do this whenever new dependencies should get installed
 pnpm db:push
 ```
 
-This command creates a (.gitignore'd) SQLite DB file in src/db/localdb.sqlite.
+This command creates a (.gitignore'd) SQLite DB file in src/db/localdb.sqlite with all the tables for authentication and book swapping features.
 
 *You also use this command later to push the changes to the schema into the database!*
 
