@@ -1,80 +1,61 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { Badge } from "@/components/ui/badge"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import type { Book } from "@/lib/books"
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogHeader,
+	DialogTitle,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 
-interface BookSelectionDialogProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  books: Book[]
-  onSelect: (bookId: string) => void
-  targetBook: Book
-}
+type Book = {
+	id: string;
+	title: string;
+	author: string;
+};
 
-export function BookSelectionDialog({ open, onOpenChange, books, onSelect, targetBook }: BookSelectionDialogProps) {
-  const [selectedBookId, setSelectedBookId] = useState<string | null>(null)
+type BookSelectionDialogProps = {
+	open: boolean;
+	onOpenChange: (open: boolean) => void;
+	books: Book[];
+	onSelectBook: (bookId: string) => void;
+};
 
-  const handleConfirm = () => {
-    if (selectedBookId) {
-      onSelect(selectedBookId)
-      setSelectedBookId(null)
-    }
-  }
-
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>Select a Book to Offer</DialogTitle>
-          <DialogDescription>Choose one of your books to trade for "{targetBook.title}"</DialogDescription>
-        </DialogHeader>
-
-        {books.length === 0 ? (
-          <div className="text-center py-8 text-muted-foreground">
-            <p>You don't have any books to offer yet.</p>
-            <p className="text-sm mt-1">Add books to your collection first.</p>
-          </div>
-        ) : (
-          <div className="space-y-4">
-            <div className="grid gap-3">
-              {books.map((book) => (
-                <Card
-                  key={book.id}
-                  className={`cursor-pointer transition-colors ${
-                    selectedBookId === book.id ? "border-primary bg-accent" : "hover:bg-accent/50"
-                  }`}
-                  onClick={() => setSelectedBookId(book.id)}
-                >
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-base">{book.title}</CardTitle>
-                    <p className="text-sm text-muted-foreground">by {book.author}</p>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="flex flex-wrap gap-2">
-                      <Badge variant="secondary" className="text-xs">
-                        {book.genre}
-                      </Badge>
-                      {book.condition && (
-                        <Badge variant="outline" className="text-xs capitalize">
-                          {book.condition.replace("-", " ")}
-                        </Badge>
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-
-            <Button onClick={handleConfirm} disabled={!selectedBookId} className="w-full">
-              Confirm Trade Offer
-            </Button>
-          </div>
-        )}
-      </DialogContent>
-    </Dialog>
-  )
+export function BookSelectionDialog({
+	open,
+	onOpenChange,
+	books,
+	onSelectBook,
+}: BookSelectionDialogProps) {
+	return (
+		<Dialog open={open} onOpenChange={onOpenChange}>
+			<DialogContent className="max-w-md">
+				<DialogHeader>
+					<DialogTitle>Select a Book to Offer</DialogTitle>
+					<DialogDescription>
+						Choose which book from your collection you'd like to offer for this
+						swap.
+					</DialogDescription>
+				</DialogHeader>
+				<div className="max-h-[400px] overflow-y-auto pr-4">
+					<div className="space-y-2">
+						{books.map((book) => (
+							<Button
+								key={book.id}
+								variant="outline"
+								className="w-full justify-start text-left h-auto py-3 px-4"
+								onClick={() => onSelectBook(book.id)}
+							>
+								<div>
+									<p className="font-medium">{book.title}</p>
+									<p className="text-sm text-muted-foreground">{book.author}</p>
+								</div>
+							</Button>
+						))}
+					</div>
+				</div>
+			</DialogContent>
+		</Dialog>
+	);
 }
