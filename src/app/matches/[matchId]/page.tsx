@@ -105,6 +105,7 @@ export default async function MatchDetailPage({ params }: PageProps) {
           action={async (formData) => {
             "use server";
             await deleteMatch(formData);
+            redirect("/matches");
           }}
         >
           <input type="hidden" name="matchId" value={matchId} />

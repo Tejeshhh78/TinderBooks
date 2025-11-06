@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { AppSidebar } from "@/components/app-sidebar";
+import { ThemeToggle } from "@/components/theme-toggle";
 import {
   SidebarProvider,
   SidebarInset,
@@ -35,7 +36,7 @@ export default async function RootLayout({
   const session = await getServerSession();
 
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
@@ -48,13 +49,21 @@ export default async function RootLayout({
                 <div className="flex items-center gap-2 text-sm font-semibold">
                   📚 BookSwap
                 </div>
+                <div className="ml-auto">
+                  <ThemeToggle />
+                </div>
               </header>
               <main className="flex-1">{children}</main>
             </SidebarInset>
           </SidebarProvider>
         ) : (
           // Unauthenticated layout (e.g., login/signup/public pages) – no sidebar
-          <main className="min-h-screen">{children}</main>
+          <main className="min-h-screen">
+            <div className="fixed right-4 top-4 z-50">
+              <ThemeToggle />
+            </div>
+            {children}
+          </main>
         )}
         <Toaster />
       </body>
