@@ -10,23 +10,31 @@ export function ThemeToggle({ className }: { className?: string }) {
   const [theme, setTheme] = useState<"light" | "dark">("light");
 
   useEffect(() => {
-    // Initialize from storage or prefers-color-scheme
-    const stored = (typeof window !== "undefined" && localStorage.getItem(KEY)) as
-      | "light"
-      | "dark"
-      | null;
-    const initial =
-      stored ?? (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
-    setTheme(initial);
-    document.documentElement.classList.toggle("dark", initial === "dark");
+    // Initialize from cookie/localStorage or prefers-color-scheme, and sync with current DOM class
+    try {
+      const cookieMatch = document.cookie.match(/(?:^|; )tb-theme=(dark|light)/);
+      const cookieTheme = (cookieMatch?.[1] as "dark" | "light" | undefined) ?? undefined;
+      const stored = (typeof window !== "undefined" && localStorage.getItem(KEY)) as
+        | "light"
+        | "dark"
+        | null;
+      const initial =
+        cookieTheme ?? stored ?? (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+      setTheme(initial);
+      document.documentElement.classList.toggle("dark", initial === "dark");
+    } catch {}
   }, []);
 
   const toggle = () => {
     const next = theme === "dark" ? "light" : "dark";
     setTheme(next);
-    if (typeof window !== "undefined") {
-      localStorage.setItem(KEY, next);
-    }
+    try {
+      if (typeof window !== "undefined") {
+        localStorage.setItem(KEY, next);
+      }
+      // Persist for SSR to read
+      document.cookie = `tb-theme=${next}; path=/; max-age=${60 * 60 * 24 * 365}`;
+    } catch {}
     document.documentElement.classList.toggle("dark", next === "dark");
   };
 

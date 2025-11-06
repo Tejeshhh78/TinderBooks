@@ -10,6 +10,8 @@ import {
 } from "@/components/ui/sidebar";
 import { Toaster } from "@/components/ui/sonner";
 import { getServerSession } from "@/lib/auth-server";
+import { cookies } from "next/headers";
+import Script from "next/script";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -34,9 +36,25 @@ export default async function RootLayout({
 }>) {
   // Determine if a user session exists on the server. If not, hide the sidebar/header.
   const session = await getServerSession();
+  const cookieStore = await cookies();
+  const cookieTheme = cookieStore.get("tb-theme")?.value;
+  const isDark = cookieTheme === "dark";
 
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning className={isDark ? "dark" : undefined}>
+      {/* No-flash theme script: ensures correct theme before hydration */}
+      <Script id="theme-init" strategy="beforeInteractive">
+        {`
+;(function(){
+  try {
+    var m = document.cookie.match(/(?:^|; )tb-theme=(dark|light)/);
+    var t = m && m[1] ? m[1] : (localStorage.getItem('${"tb-theme"}') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'));
+    if (t === 'dark') document.documentElement.classList.add('dark');
+    else document.documentElement.classList.remove('dark');
+  } catch (e) {}
+})();
+        `}
+      </Script>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
