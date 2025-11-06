@@ -73,12 +73,13 @@ export async function swipeBook(bookId: string, action: "like" | "pass") {
           .limit(1);
 
         if (existing.length === 0) {
+          // Conventions: user1 pairs with book1 (my book), user2 pairs with book2 (their book I liked)
           await db.insert(match).values({
             id: randomUUID(),
             user1Id: session.user.id,
             user2Id: bookOwnerId,
-            book1Id: bookId,
-            book2Id: myBookId,
+            book1Id: myBookId,
+            book2Id: bookId,
             status: "pending",
           });
 

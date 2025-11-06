@@ -44,10 +44,11 @@ export default async function MatchesPage() {
   // Enrich matches with proper data structure
   const enrichedMatches = await Promise.all(
     matchesRaw.map(async (m) => {
-      const isUser1 = m.user1Id === session.user.id;
-      const otherUserId = isUser1 ? m.user2Id : m.user1Id;
-      const myBookId = isUser1 ? m.book2Id : m.book1Id;
-      const theirBookId = isUser1 ? m.book1Id : m.book2Id;
+  const isUser1 = m.user1Id === session.user.id;
+  const otherUserId = isUser1 ? m.user2Id : m.user1Id;
+  // By convention: user1 -> book1, user2 -> book2
+  const myBookId = isUser1 ? m.book1Id : m.book2Id;
+  const theirBookId = isUser1 ? m.book2Id : m.book1Id;
 
       if (!myBookId || !theirBookId) {
         return null;
@@ -164,7 +165,7 @@ export default async function MatchesPage() {
                             alt={m.myBook.title}
                             fill
                             sizes="64px"
-                            className="object-cover rounded"
+                            className="object-cover rounded brightness-100 dark:brightness-100"
                           />
                         </div>
                         <div>
@@ -186,7 +187,7 @@ export default async function MatchesPage() {
                             alt={m.theirBook.title}
                             fill
                             sizes="64px"
-                            className="object-cover rounded"
+                            className="object-cover rounded brightness-100 dark:brightness-100"
                           />
                         </div>
                         <div>

@@ -65,7 +65,7 @@ export function BookList({ books, inMatchingBookIds = [] }: BookListProps) {
               alt={book.title}
               fill
               sizes="(max-width: 768px) 100vw, 512px"
-              className="object-cover"
+              className="object-cover brightness-100 dark:brightness-100"
             />
           </div>
           <CardHeader>

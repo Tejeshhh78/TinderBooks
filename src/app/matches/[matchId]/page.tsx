@@ -49,8 +49,9 @@ export default async function MatchDetailPage({ params }: PageProps) {
   const matchInfo = matchData[0];
   const isUser1 = matchInfo.user1Id === session.user.id;
   const otherUserId = isUser1 ? matchInfo.user2Id : matchInfo.user1Id;
-  const myBookId = isUser1 ? matchInfo.book2Id : matchInfo.book1Id;
-  const theirBookId = isUser1 ? matchInfo.book1Id : matchInfo.book2Id;
+  // By convention: user1 -> book1, user2 -> book2
+  const myBookId = isUser1 ? matchInfo.book1Id : matchInfo.book2Id;
+  const theirBookId = isUser1 ? matchInfo.book2Id : matchInfo.book1Id;
 
   // Get all related data
   const [otherUserData, myBookData, theirBookData, messages] =
@@ -131,7 +132,7 @@ export default async function MatchDetailPage({ params }: PageProps) {
                   alt={myBook.title}
                   fill
                   sizes="80px"
-                  className="object-cover rounded"
+                  className="object-cover rounded brightness-100 dark:brightness-100"
                 />
               </div>
               <div>
@@ -156,7 +157,7 @@ export default async function MatchDetailPage({ params }: PageProps) {
                   alt={theirBook.title}
                   fill
                   sizes="80px"
-                  className="object-cover rounded"
+                  className="object-cover rounded brightness-100 dark:brightness-100"
                 />
               </div>
               <div>

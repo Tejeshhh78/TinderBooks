@@ -38,7 +38,7 @@ export default async function ProfilePage() {
                 alt={session.user.name || "profile"}
                 fill
                 sizes="80px"
-                className="object-cover"
+                className="object-cover brightness-100 dark:brightness-100"
               />
             </div>
           ) : (

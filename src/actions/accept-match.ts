@@ -47,9 +47,10 @@ export async function acceptMatch(formData: FormData) {
     }
 
     // Determine current user's book in this match
-    const isUser1 = m.user1Id === session.user.id;
-    const myBookId = isUser1 ? m.book2Id : m.book1Id;
-    const theirBookId = isUser1 ? m.book1Id : m.book2Id;
+  const isUser1 = m.user1Id === session.user.id;
+  // By convention: user1 <-> book1, user2 <-> book2
+  const myBookId = isUser1 ? m.book1Id : m.book2Id;
+  const theirBookId = isUser1 ? m.book2Id : m.book1Id;
 
     // Reserve my book (set unavailable)
     await db.update(book).set({ isAvailable: false }).where(eq(book.id, myBookId));

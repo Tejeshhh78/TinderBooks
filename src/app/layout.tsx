@@ -11,7 +11,9 @@ import {
 import { Toaster } from "@/components/ui/sonner";
 import { getServerSession } from "@/lib/auth-server";
 import { cookies } from "next/headers";
-import Script from "next/script";
+// Note: Avoid using next/script within <html> directly. We'll inline the
+// minimal theme-init script inside <head> to prevent a flash of incorrect
+// theme before hydration.
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -42,19 +44,22 @@ export default async function RootLayout({
 
   return (
     <html lang="en" suppressHydrationWarning className={isDark ? "dark" : undefined}>
-      {/* No-flash theme script: ensures correct theme before hydration */}
-      <Script id="theme-init" strategy="beforeInteractive">
-        {`
-;(function(){
+      <head>
+        {/* No-flash theme script: ensures correct theme before hydration */}
+        <script
+          id="theme-init"
+          dangerouslySetInnerHTML={{
+            __html: `;(function(){
   try {
-    var m = document.cookie.match(/(?:^|; )tb-theme=(dark|light)/);
-    var t = m && m[1] ? m[1] : (localStorage.getItem('${"tb-theme"}') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'));
-    if (t === 'dark') document.documentElement.classList.add('dark');
+    var m=document.cookie.match(/(?:^|; )tb-theme=(dark|light)/);
+    var t=m&&m[1]?m[1]:(localStorage.getItem('tb-theme')||(window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'));
+    if(t==='dark') document.documentElement.classList.add('dark');
     else document.documentElement.classList.remove('dark');
-  } catch (e) {}
-})();
-        `}
-      </Script>
+  } catch(e){}
+})();`,
+          }}
+        />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
