@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   Card,
   CardContent,
@@ -40,8 +40,8 @@ export function SwipeInterface({ books }: SwipeInterfaceProps) {
 
   const currentBook = books[currentIndex];
 
-  const handleSwipe = async (action: "like" | "pass") => {
-    if (isAnimating) return;
+  const handleSwipe = useCallback(async (action: "like" | "pass") => {
+    if (isAnimating || !currentBook) return;
 
     setIsAnimating(true);
     setSwipeDirection(action === "like" ? "right" : "left");
@@ -60,7 +60,33 @@ export function SwipeInterface({ books }: SwipeInterfaceProps) {
       setIsAnimating(false);
       setSwipeDirection(null);
     }, 300);
-  };
+  }, [currentBook, isAnimating]);
+
+  // Keyboard navigation: Left Arrow = pass, Right Arrow = like
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      // Avoid triggering when typing in inputs/textareas/contenteditable
+      const target = e.target as HTMLElement | null;
+      const tag = target?.tagName?.toLowerCase();
+      const isEditable =
+        (target as HTMLElement | null)?.isContentEditable ||
+        tag === "input" ||
+        tag === "textarea" ||
+        tag === "select";
+      if (isEditable) return;
+
+      if (e.key === "ArrowLeft") {
+        e.preventDefault();
+        void handleSwipe("pass");
+      } else if (e.key === "ArrowRight") {
+        e.preventDefault();
+        void handleSwipe("like");
+      }
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [handleSwipe]);
 
   if (!currentBook || currentIndex >= books.length) {
     return (
