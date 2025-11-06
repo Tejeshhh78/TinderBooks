@@ -3,7 +3,7 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { db } from "@/db";
 import { match, book, user } from "@/db/schema";
-import { eq, or, desc, ne, and } from "drizzle-orm";
+import { eq, or, desc, and, ne, isNull } from "drizzle-orm";
 import Link from "next/link";
 import {
   Card,
@@ -36,7 +36,8 @@ export default async function MatchesPage() {
     .where(
       and(
         or(eq(match.user1Id, session.user.id), eq(match.user2Id, session.user.id)),
-        ne(match.status, "cancelled"),
+        // Hide only if this match was deleted by me
+  or(isNull(match.deletedForUserId), ne(match.deletedForUserId, session.user.id)),
       ),
     )
     .orderBy(desc(match.createdAt));
@@ -67,6 +68,9 @@ export default async function MatchesPage() {
       return {
         matchId: m.id,
         status: m.status,
+        deletedByMe: m.deletedForUserId === session.user.id,
+        deletedByOther:
+          m.deletedForUserId !== null && m.deletedForUserId !== session.user.id,
         createdAt: m.createdAt,
         otherUser: otherUserData[0],
         myBook: myBookData[0],
@@ -131,13 +135,19 @@ export default async function MatchesPage() {
                       {m.status === "pending" && !m.myBook.isAvailable && (
                         <Badge variant="secondary">Waiting for confirmation</Badge>
                       )}
-                      {m.status !== "pending" && (
-                        <Badge variant={m.status === "active" ? "default" : "secondary"}>
-                          {m.status}
-                        </Badge>
+                      {m.status === "active" && (
+                        <Badge variant="default">Matched</Badge>
+                      )}
+                      {m.status === "cancelled" && (
+                        <Badge variant="secondary">Cancelled</Badge>
                       )}
                     </div>
                   </div>
+                  {m.status === "cancelled" && m.deletedByOther && (
+                    <div className="text-xs text-muted-foreground mt-1">
+                      The other user dissolved this match.
+                    </div>
+                  )}
                   <div className="mt-2 flex justify-end">
                     <form
                       action={async (formData) => {

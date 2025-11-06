@@ -118,6 +118,8 @@ export const book = sqliteTable("book", {
   isAvailable: integer("is_available", { mode: "boolean" })
     .default(true)
     .notNull(),
+  // Soft-delete flag: removed from listings but kept for historical matches
+  isDeleted: integer("is_deleted", { mode: "boolean" }).default(false).notNull(),
   createdAt: integer("created_at", { mode: "timestamp_ms" })
     .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
     .notNull(),
@@ -167,11 +169,13 @@ export const match = sqliteTable("match", {
     .references(() => user.id, { onDelete: "cascade" }),
   book1Id: text("book1_id")
     .notNull()
-    .references(() => book.id, { onDelete: "cascade" }),
+    .references(() => book.id, { onDelete: "restrict" }),
   book2Id: text("book2_id")
     .notNull()
-    .references(() => book.id, { onDelete: "cascade" }),
-  status: text("status").notNull().default("active"), // "active", "completed", "cancelled"
+    .references(() => book.id, { onDelete: "restrict" }),
+  status: text("status").notNull().default("pending"), // "pending", "active", "completed", "cancelled"
+  // If set, hide this match from that user but still show it to the other
+  deletedForUserId: text("deleted_for_user_id"),
   createdAt: integer("created_at", { mode: "timestamp_ms" })
     .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
     .notNull(),

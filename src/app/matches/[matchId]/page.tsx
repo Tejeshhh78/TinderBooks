@@ -37,7 +37,7 @@ export default async function MatchDetailPage({ params }: PageProps) {
       and(
         eq(match.id, matchId),
         or(eq(match.user1Id, session.user.id), eq(match.user2Id, session.user.id)),
-        ne(match.status, "cancelled"),
+        // Show even if cancelled, but if the current user deleted it, redirect back
       ),
     )
     .limit(1);
@@ -47,6 +47,9 @@ export default async function MatchDetailPage({ params }: PageProps) {
   }
 
   const matchInfo = matchData[0];
+  if (matchInfo.deletedForUserId === session.user.id) {
+    redirect("/matches");
+  }
   const isUser1 = matchInfo.user1Id === session.user.id;
   const otherUserId = isUser1 ? matchInfo.user2Id : matchInfo.user1Id;
   // By convention: user1 -> book1, user2 -> book2
@@ -75,6 +78,7 @@ export default async function MatchDetailPage({ params }: PageProps) {
   const myBook = myBookData[0];
   const theirBook = theirBookData[0];
   const pending = matchInfo.status === "pending";
+  const cancelled = matchInfo.status === "cancelled";
 
   return (
     <div className="container mx-auto max-w-4xl py-8 px-4">
@@ -86,7 +90,7 @@ export default async function MatchDetailPage({ params }: PageProps) {
           </Button>
         </Link>
         <div className="flex items-center gap-2">
-          {pending && myBook.isAvailable && (
+          {pending && !cancelled && myBook.isAvailable && (
             <form
               action={async (formData) => {
                 "use server";
@@ -99,8 +103,11 @@ export default async function MatchDetailPage({ params }: PageProps) {
               </Button>
             </form>
           )}
-          {pending && !myBook.isAvailable && (
+          {pending && !cancelled && !myBook.isAvailable && (
             <span className="text-sm text-muted-foreground">Waiting for confirmation…</span>
+          )}
+          {cancelled && (
+            <span className="text-sm text-muted-foreground">This match was dissolved.</span>
           )}
         <form
           action={async (formData) => {
@@ -171,12 +178,25 @@ export default async function MatchDetailPage({ params }: PageProps) {
         </Card>
       </div>
 
-      <ChatInterface
-        matchId={matchId}
-        messages={messages}
-        currentUserId={session.user.id}
-        otherUserName={otherUser.name}
-      />
+      {cancelled ? (
+        <Card className="mt-6">
+          <CardHeader>
+            <CardTitle className="text-base">Chat closed</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground">
+              This match is cancelled. Messaging is disabled.
+            </p>
+          </CardContent>
+        </Card>
+      ) : (
+        <ChatInterface
+          matchId={matchId}
+          messages={messages}
+          currentUserId={session.user.id}
+          otherUserName={otherUser.name}
+        />
+      )}
     </div>
   );
 }

@@ -18,8 +18,10 @@ export async function deleteBook(bookId: string) {
   }
 
   try {
+    // Soft-delete: hide from listings but keep for historical matches
     await db
-      .delete(book)
+      .update(book)
+      .set({ isDeleted: true, isAvailable: false })
       .where(and(eq(book.id, bookId), eq(book.userId, session.user.id)));
 
     revalidatePath("/", "layout");

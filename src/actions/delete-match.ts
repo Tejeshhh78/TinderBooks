@@ -40,7 +40,10 @@ export async function deleteMatch(formData: FormData) {
     }
 
   // Soft-delete by setting status to cancelled and free up books (set available)
-  await db.update(match).set({ status: "cancelled" }).where(eq(match.id, matchId));
+  await db
+    .update(match)
+    .set({ status: "cancelled", deletedForUserId: session.user.id })
+    .where(eq(match.id, matchId));
   const m = existing[0];
   await db.update(book).set({ isAvailable: true }).where(eq(book.id, m.book1Id));
   await db.update(book).set({ isAvailable: true }).where(eq(book.id, m.book2Id));

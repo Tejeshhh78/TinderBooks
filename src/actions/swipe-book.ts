@@ -47,6 +47,7 @@ export async function swipeBook(bookId: string, action: "like" | "pass") {
             eq(swipe.action, "like"),
             eq(book.userId, session.user.id),
             eq(book.isAvailable, true),
+            eq(book.isDeleted, false),
           ),
         )
         .limit(1);

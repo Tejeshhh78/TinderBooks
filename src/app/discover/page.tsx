@@ -68,6 +68,7 @@ export default async function DiscoverPage({
     .where(
       and(
         eq(book.isAvailable, true),
+        eq(book.isDeleted, false),
         ne(book.userId, session.user.id),
         selectedGenres.length > 0
           ? inArray(book.genre, selectedGenres)
@@ -96,6 +97,7 @@ export default async function DiscoverPage({
       .where(
         and(
           eq(book.isAvailable, true),
+          eq(book.isDeleted, false),
           ne(book.userId, session.user.id),
           notInArray(book.id, swipedBookIds),
           selectedGenres.length > 0

@@ -3,7 +3,7 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { db } from "@/db";
 import { book, match } from "@/db/schema";
-import { eq, or, inArray } from "drizzle-orm";
+import { eq, or, inArray, and } from "drizzle-orm";
 import { BookList } from "./_components/book-list";
 import { WantedBookList } from "./_components/wanted-book-list";
 import { AddBookDialog } from "./_components/add-book-dialog";
@@ -19,11 +19,14 @@ export default async function MyBooksPage() {
     redirect("/login");
   }
 
-  const myBooks = await db.select().from(book).where(eq(book.userId, session.user.id));
+  const myBooks = await db
+    .select()
+    .from(book)
+    .where(and(eq(book.userId, session.user.id), eq(book.isDeleted, false)));
 
   // Compute which of my books are currently involved in pending/active matches
   const myBookIds = myBooks.map((b) => b.id);
-  let inMatchingBookIds: string[] = [];
+  let bookStatuses: Record<string, "pending" | "active"> = {};
   if (myBookIds.length > 0) {
     const relatedMatches = await db
       .select({ book1Id: match.book1Id, book2Id: match.book2Id, status: match.status })
@@ -32,14 +35,16 @@ export default async function MyBooksPage() {
         or(inArray(match.book1Id, myBookIds), inArray(match.book2Id, myBookIds))
       );
 
-    const set = new Set<string>();
     for (const m of relatedMatches) {
       if (m.status === "pending" || m.status === "active") {
-        if (myBookIds.includes(m.book1Id)) set.add(m.book1Id);
-        if (myBookIds.includes(m.book2Id)) set.add(m.book2Id);
+        if (myBookIds.includes(m.book1Id)) bookStatuses[m.book1Id] = m.status as
+          | "pending"
+          | "active";
+        if (myBookIds.includes(m.book2Id)) bookStatuses[m.book2Id] = m.status as
+          | "pending"
+          | "active";
       }
     }
-    inMatchingBookIds = Array.from(set);
   }
 
   return (
@@ -53,7 +58,7 @@ export default async function MyBooksPage() {
           </p>
           <AddBookDialog />
         </div>
-        <BookList books={myBooks} inMatchingBookIds={inMatchingBookIds} />
+        <BookList books={myBooks} bookStatuses={bookStatuses} />
       </div>
     </div>
   );
