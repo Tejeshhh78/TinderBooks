@@ -3,7 +3,7 @@ import { headers } from "next/headers";
 import { redirect, notFound } from "next/navigation";
 import { db } from "@/db";
 import { match, book, user, message } from "@/db/schema";
-import { eq, or, and, asc } from "drizzle-orm";
+import { eq, or, and, asc, ne } from "drizzle-orm";
 import { ChatInterface } from "./_components/chat-interface";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -36,10 +36,8 @@ export default async function MatchDetailPage({ params }: PageProps) {
     .where(
       and(
         eq(match.id, matchId),
-        or(
-          eq(match.user1Id, session.user.id),
-          eq(match.user2Id, session.user.id),
-        ),
+        or(eq(match.user1Id, session.user.id), eq(match.user2Id, session.user.id)),
+        ne(match.status, "cancelled"),
       ),
     )
     .limit(1);

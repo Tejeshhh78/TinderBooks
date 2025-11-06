@@ -2,7 +2,7 @@
 
 import "server-only";
 import { db } from "@/db";
-import { match } from "@/db/schema";
+import { match, book } from "@/db/schema";
 import { auth } from "@/lib/auth-server";
 import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
@@ -39,8 +39,11 @@ export async function deleteMatch(formData: FormData) {
       return { error: "Match not found" };
     }
 
-    // Soft-delete by setting status to cancelled
-    await db.update(match).set({ status: "cancelled" }).where(eq(match.id, matchId));
+  // Soft-delete by setting status to cancelled and free up books (set available)
+  await db.update(match).set({ status: "cancelled" }).where(eq(match.id, matchId));
+  const m = existing[0];
+  await db.update(book).set({ isAvailable: true }).where(eq(book.id, m.book1Id));
+  await db.update(book).set({ isAvailable: true }).where(eq(book.id, m.book2Id));
 
     revalidatePath("/", "layout");
     return { success: true };

@@ -3,7 +3,7 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { db } from "@/db";
 import { match, book, user } from "@/db/schema";
-import { eq, or, desc } from "drizzle-orm";
+import { eq, or, desc, ne, and } from "drizzle-orm";
 import Link from "next/link";
 import {
   Card,
@@ -34,9 +34,9 @@ export default async function MatchesPage() {
     .select()
     .from(match)
     .where(
-      or(
-        eq(match.user1Id, session.user.id),
-        eq(match.user2Id, session.user.id),
+      and(
+        or(eq(match.user1Id, session.user.id), eq(match.user2Id, session.user.id)),
+        ne(match.status, "cancelled"),
       ),
     )
     .orderBy(desc(match.createdAt));
@@ -75,7 +75,18 @@ export default async function MatchesPage() {
   );
 
   // Filter out null matches
-  const validMatches = enrichedMatches.filter((m) => m !== null);
+  // Filter out nulls and de-duplicate by book pair (order-insensitive)
+  const seen = new Set<string>();
+  const validMatches = enrichedMatches
+    .filter((m): m is NonNullable<typeof m> => m !== null)
+    .filter((m) => {
+      const a = m.myBook.id < m.theirBook.id ? m.myBook.id : m.theirBook.id;
+      const b = m.myBook.id < m.theirBook.id ? m.theirBook.id : m.myBook.id;
+      const key = `${a}|${b}`;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
 
   return (
     <div className="container mx-auto max-w-4xl py-8 px-4">

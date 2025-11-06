@@ -29,13 +29,26 @@ export async function addBook(formData: FormData) {
     return { error: "Unauthorized" };
   }
 
+  const rawTitle = formData.get("title");
+  const rawAuthor = formData.get("author");
+  const rawGenre = formData.get("genre");
+  const rawCondition = formData.get("condition");
+  const rawDescription = formData.get("description");
+  const rawImageUrl = formData.get("imageUrl");
+
   const data = {
-    title: formData.get("title") as string,
-    author: formData.get("author") as string,
-    genre: formData.get("genre") as string,
-    condition: formData.get("condition") as string,
-    description: formData.get("description") as string,
-    imageUrl: formData.get("imageUrl") as string,
+    title: typeof rawTitle === "string" ? rawTitle : "",
+    author: typeof rawAuthor === "string" ? rawAuthor : "",
+    genre: typeof rawGenre === "string" ? rawGenre : "",
+    condition: typeof rawCondition === "string" ? rawCondition : "",
+    description:
+      typeof rawDescription === "string" && rawDescription.trim() !== ""
+        ? rawDescription
+        : undefined,
+    imageUrl:
+      typeof rawImageUrl === "string" && rawImageUrl.trim() !== ""
+        ? rawImageUrl
+        : undefined,
   };
 
   const parsed = addBookSchema.safeParse(data);
