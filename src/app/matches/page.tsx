@@ -13,9 +13,10 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { MessageCircle, Trash2 } from "lucide-react";
+import { MessageCircle, Trash2, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { deleteMatch } from "@/actions/delete-match";
+import { acceptMatch } from "@/actions/accept-match";
 import Image from "next/image";
 
 export default async function MatchesPage() {
@@ -100,11 +101,29 @@ export default async function MatchesPage() {
                         {new Date(m.createdAt).toLocaleDateString()}
                       </CardDescription>
                     </div>
-                    <Badge
-                      variant={m.status === "active" ? "default" : "secondary"}
-                    >
-                      {m.status}
-                    </Badge>
+                    <div className="flex items-center gap-2">
+                      {m.status === "pending" && m.myBook.isAvailable && (
+                        <form
+                          action={async (formData) => {
+                            "use server";
+                            formData.set("matchId", m.matchId);
+                            await acceptMatch(formData);
+                          }}
+                        >
+                          <Button size="sm" type="submit">
+                            <Check className="size-4 mr-2" /> Accept
+                          </Button>
+                        </form>
+                      )}
+                      {m.status === "pending" && !m.myBook.isAvailable && (
+                        <Badge variant="secondary">Waiting for confirmation</Badge>
+                      )}
+                      {m.status !== "pending" && (
+                        <Badge variant={m.status === "active" ? "default" : "secondary"}>
+                          {m.status}
+                        </Badge>
+                      )}
+                    </div>
                   </div>
                   <div className="mt-2 flex justify-end">
                     <form

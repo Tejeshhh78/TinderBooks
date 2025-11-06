@@ -28,9 +28,10 @@ interface Book {
 
 interface BookListProps {
   books: Book[];
+  inMatchingBookIds?: string[];
 }
 
-export function BookList({ books }: BookListProps) {
+export function BookList({ books, inMatchingBookIds = [] }: BookListProps) {
   const handleDelete = async (bookId: string) => {
     if (!confirm("Are you sure you want to delete this book?")) return;
 
@@ -75,9 +76,13 @@ export function BookList({ books }: BookListProps) {
                   {book.author}
                 </CardDescription>
               </div>
-              <Badge variant={book.isAvailable ? "default" : "secondary"}>
-                {book.isAvailable ? "Available" : "Traded"}
-              </Badge>
+              {inMatchingBookIds.includes(book.id) ? (
+                <Badge variant="secondary">In Matching</Badge>
+              ) : (
+                <Badge variant={book.isAvailable ? "default" : "secondary"}>
+                  {book.isAvailable ? "Available" : "Traded"}
+                </Badge>
+              )}
             </div>
           </CardHeader>
           <CardContent>

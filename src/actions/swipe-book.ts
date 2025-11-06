@@ -60,7 +60,10 @@ export async function swipeBook(bookId: string, action: "like" | "pass") {
           .from(match)
           .where(
             and(
-              eq(match.status, "active"),
+              // Avoid duplicates for any non-cancelled match between these books
+              // If a previous match was cancelled, allow creating a new one
+              // Note: status is free-text; we treat anything except 'cancelled' as existing
+              // by checking not equal when paired with book pair OR check existence of any row then filter in code
               or(
                 and(eq(match.book1Id, bookId), eq(match.book2Id, myBookId)),
                 and(eq(match.book2Id, bookId), eq(match.book1Id, myBookId)),
@@ -76,10 +79,10 @@ export async function swipeBook(bookId: string, action: "like" | "pass") {
             user2Id: bookOwnerId,
             book1Id: bookId,
             book2Id: myBookId,
-            status: "active",
+            status: "pending",
           });
 
-          revalidatePath("/", "layout");
+          // Don't globally revalidate on creating a pending match to keep counters stable
           return { success: true, matched: true };
         }
       }

@@ -8,8 +8,9 @@ import { ChatInterface } from "./_components/chat-interface";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { ArrowLeft, Trash2 } from "lucide-react";
+import { ArrowLeft, Trash2, Check } from "lucide-react";
 import { deleteMatch } from "@/actions/delete-match";
+import { acceptMatch } from "@/actions/accept-match";
 import Image from "next/image";
 
 interface PageProps {
@@ -73,6 +74,7 @@ export default async function MatchDetailPage({ params }: PageProps) {
   const otherUser = otherUserData[0];
   const myBook = myBookData[0];
   const theirBook = theirBookData[0];
+  const pending = matchInfo.status === "pending";
 
   return (
     <div className="container mx-auto max-w-4xl py-8 px-4">
@@ -83,6 +85,23 @@ export default async function MatchDetailPage({ params }: PageProps) {
             Back to matches
           </Button>
         </Link>
+        <div className="flex items-center gap-2">
+          {pending && myBook.isAvailable && (
+            <form
+              action={async (formData) => {
+                "use server";
+                formData.set("matchId", matchId);
+                await acceptMatch(formData);
+              }}
+            >
+              <Button size="sm" type="submit">
+                <Check className="size-4 mr-2" /> Accept match
+              </Button>
+            </form>
+          )}
+          {pending && !myBook.isAvailable && (
+            <span className="text-sm text-muted-foreground">Waiting for confirmation…</span>
+          )}
         <form
           action={async (formData) => {
             "use server";
@@ -95,6 +114,7 @@ export default async function MatchDetailPage({ params }: PageProps) {
             Delete match
           </Button>
         </form>
+        </div>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
         <Card>

@@ -2,8 +2,8 @@ import { auth } from "@/lib/auth-server";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { db } from "@/db";
-import { book, wantedBook } from "@/db/schema";
-import { eq } from "drizzle-orm";
+import { book, wantedBook, match } from "@/db/schema";
+import { eq, or, inArray } from "drizzle-orm";
 import { BookList } from "./_components/book-list";
 import { WantedBookList } from "./_components/wanted-book-list";
 import { AddBookDialog } from "./_components/add-book-dialog";
@@ -24,6 +24,27 @@ export default async function MyBooksPage() {
     db.select().from(wantedBook).where(eq(wantedBook.userId, session.user.id)),
   ]);
 
+  // Compute which of my books are currently involved in pending/active matches
+  const myBookIds = myBooks.map((b) => b.id);
+  let inMatchingBookIds: string[] = [];
+  if (myBookIds.length > 0) {
+    const relatedMatches = await db
+      .select({ book1Id: match.book1Id, book2Id: match.book2Id, status: match.status })
+      .from(match)
+      .where(
+        or(inArray(match.book1Id, myBookIds), inArray(match.book2Id, myBookIds))
+      );
+
+    const set = new Set<string>();
+    for (const m of relatedMatches) {
+      if (m.status === "pending" || m.status === "active") {
+        if (myBookIds.includes(m.book1Id)) set.add(m.book1Id);
+        if (myBookIds.includes(m.book2Id)) set.add(m.book2Id);
+      }
+    }
+    inMatchingBookIds = Array.from(set);
+  }
+
   return (
     <div className="container mx-auto max-w-6xl py-8 px-4">
       <h1 className="text-3xl font-bold mb-6">My Books</h1>
@@ -42,7 +63,7 @@ export default async function MyBooksPage() {
             </p>
             <AddBookDialog />
           </div>
-          <BookList books={myBooks} />
+          <BookList books={myBooks} inMatchingBookIds={inMatchingBookIds} />
         </TabsContent>
 
         <TabsContent value="want" className="mt-6">
