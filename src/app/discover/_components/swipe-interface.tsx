@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   Card,
   CardContent,
@@ -37,6 +37,9 @@ export function SwipeInterface({ books }: SwipeInterfaceProps) {
   const [swipeDirection, setSwipeDirection] = useState<"left" | "right" | null>(
     null,
   );
+
+  // Keep the initial total stable during the session to avoid shrinking totals after a swipe
+  const initialTotalRef = useRef<number>(books.length);
 
   const currentBook = books[currentIndex];
 
@@ -105,7 +108,7 @@ export function SwipeInterface({ books }: SwipeInterfaceProps) {
   return (
     <div className="relative">
       <div className="mb-4 text-center text-sm text-muted-foreground">
-        {currentIndex + 1} of {books.length} books
+        {Math.min(currentIndex + 1, initialTotalRef.current)} of {initialTotalRef.current} books
       </div>
 
       <div className="relative flex justify-center items-center min-h-[600px]">

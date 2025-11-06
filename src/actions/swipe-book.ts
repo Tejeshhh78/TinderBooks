@@ -27,7 +27,7 @@ export async function swipeBook(bookId: string, action: "like" | "pass") {
       action,
     });
 
-    // If it's a "like", check for potential matches
+  // If it's a "like", check for potential matches
     if (action === "like") {
       const likedBook = await db
         .select()
@@ -135,8 +135,8 @@ export async function swipeBook(bookId: string, action: "like" | "pass") {
         }
       }
     }
-
-    revalidatePath("/", "layout");
+    // Do not revalidate the whole app on a normal swipe to keep the UI counter stable.
+    // The updated list will be reflected on next page load or when a match occurs (see above).
     return { success: true, matched: false };
   } catch (error) {
     console.error("Error swiping book:", error);

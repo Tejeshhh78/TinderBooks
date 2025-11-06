@@ -1,7 +1,7 @@
 "use server";
 
 import "server-only";
-import { signUpEmail } from "@/lib/auth-server";
+import { signInEmail, signUpEmail } from "@/lib/auth-server";
 import { z } from "zod";
 import { redirect } from "next/navigation";
 
@@ -41,6 +41,15 @@ export const signUp = async (
       },
       asResponse: false,
     });
+
+    // Auto-login immediately after successful signup
+    await signInEmail({
+      body: {
+        email: data.email,
+        password: data.password,
+      },
+      asResponse: false,
+    });
   } catch (err) {
     console.error(err);
     return {
@@ -50,5 +59,6 @@ export const signUp = async (
 
   console.debug("Signup successful");
 
-  redirect("/login");
+  // Go straight to the app after signup
+  redirect("/discover");
 };
