@@ -25,20 +25,17 @@ export function NavMain({
 
   useEffect(() => {
     let active = true;
-    fetch("/api/notifications")
-      .then((r) => r.json())
-      .then((data) => {
-        if (!active) return;
-        setHasNotif(Boolean(data?.hasMatch || data?.hasMessage));
-      })
+    const apply = (data: any) => {
+      if (!active) return;
+      const latest = typeof data?.latest === "number" ? data.latest : 0;
+      const clearedAt = Number(localStorage.getItem("notifClearedAt") || 0);
+      const has = Boolean((data?.hasMatch || data?.hasMessage) && latest > clearedAt);
+      setHasNotif(has);
+    };
+    fetch("/api/notifications").then((r) => r.json()).then(apply)
       .catch(() => {});
     const id = setInterval(() => {
-      fetch("/api/notifications")
-        .then((r) => r.json())
-        .then((data) => {
-          if (!active) return;
-          setHasNotif(Boolean(data?.hasMatch || data?.hasMessage));
-        })
+      fetch("/api/notifications").then((r) => r.json()).then(apply)
         .catch(() => {});
     }, 30000);
     return () => {
@@ -56,7 +53,16 @@ export function NavMain({
             return (
               <SidebarMenuItem key={item.title}>
                 <SidebarMenuButton tooltip={item.title} asChild>
-                  <a href={item.url} className="relative">
+                  <a
+                    href={item.url}
+                    className="relative"
+                    onClick={() => {
+                      if (isMatches) {
+                        localStorage.setItem("notifClearedAt", String(Date.now()));
+                        setHasNotif(false);
+                      }
+                    }}
+                  >
                     {item.icon && <item.icon />}
                     <span>{item.title}</span>
                     {isMatches && hasNotif && (

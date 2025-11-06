@@ -107,18 +107,24 @@ export function BookList({ books, inMatchingBookIds = [] }: BookListProps) {
             </div>
           </CardContent>
           <CardFooter>
-            <div className="flex gap-2 w-full">
-              <EditBookDialog book={book} />
-              <Button
-                variant="destructive"
-                size="sm"
-                onClick={() => handleDelete(book.id)}
-                className="flex-1"
-              >
-                <Trash2 className="size-4 mr-2" />
-                Delete
-              </Button>
-            </div>
+            {inMatchingBookIds.includes(book.id) || !book.isAvailable ? (
+              <div className="text-sm text-muted-foreground w-full text-center">
+                Locked while in a trade
+              </div>
+            ) : (
+              <div className="flex gap-2 w-full">
+                <EditBookDialog book={book} />
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={() => handleDelete(book.id)}
+                  className="flex-1"
+                >
+                  <Trash2 className="size-4 mr-2" />
+                  Delete
+                </Button>
+              </div>
+            )}
           </CardFooter>
         </Card>
       ))}
