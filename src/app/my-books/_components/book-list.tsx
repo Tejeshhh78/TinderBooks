@@ -82,11 +82,7 @@ export function BookList({
                 </CardDescription>
               </div>
               {bookStatuses[book.id] ? (
-                <Badge
-                  variant={
-                    bookStatuses[book.id] === "active" ? "default" : "secondary"
-                  }
-                >
+                <Badge variant={bookStatuses[book.id] === "active" ? "default" : "secondary"}>
                   {bookStatuses[book.id] === "active" ? "Matched" : "Pending"}
                 </Badge>
               ) : inMatchingBookIds.includes(book.id) ? (
@@ -105,9 +101,7 @@ export function BookList({
                 <span className="text-sm font-medium">{book.genre}</span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-sm text-muted-foreground">
-                  Condition:
-                </span>
+                <span className="text-sm text-muted-foreground">Condition:</span>
                 <span className="text-sm font-medium capitalize">
                   {book.condition}
                 </span>
@@ -120,16 +114,31 @@ export function BookList({
             </div>
           </CardContent>
           <CardFooter>
-            {bookStatuses[book.id] ||
+            {/**
+             * Deletion/editing rules:
+             * - Pending or "in matching": lock
+             * - Unavailable without an active match (i.e., traded/archived): lock
+             * - Active (matched): allow Delete (chats persist), but hide Edit
+             */}
+            {bookStatuses[book.id] === "pending" ||
             inMatchingBookIds.includes(book.id) ||
-            !book.isAvailable ? (
+            (!book.isAvailable && !bookStatuses[book.id]) ? (
               <div className="text-sm text-muted-foreground w-full text-center">
-                {bookStatuses[book.id] === "active"
-                  ? "Locked (matched)"
-                  : bookStatuses[book.id] === "pending" ||
-                      inMatchingBookIds.includes(book.id)
-                    ? "Locked while in matching"
-                    : "Locked while in a trade"}
+                {bookStatuses[book.id] === "pending" || inMatchingBookIds.includes(book.id)
+                  ? "Locked while in matching"
+                  : "Locked while in a trade"}
+              </div>
+            ) : bookStatuses[book.id] === "active" ? (
+              <div className="flex gap-2 w-full">
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={() => handleDelete(book.id)}
+                  className="flex-1"
+                >
+                  <Trash2 className="size-4 mr-2" />
+                  Delete
+                </Button>
               </div>
             ) : (
               <div className="flex gap-2 w-full">
