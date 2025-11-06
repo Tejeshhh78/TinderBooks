@@ -7,7 +7,7 @@ import { auth } from "@/lib/auth-server";
 import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { randomUUID } from "node:crypto";
-import { eq, and, or } from "drizzle-orm";
+import { eq, and, or, isNull } from "drizzle-orm";
 
 export async function swipeBook(bookId: string, action: "like" | "pass") {
   const session = await auth.api.getSession({
@@ -47,7 +47,7 @@ export async function swipeBook(bookId: string, action: "like" | "pass") {
             eq(swipe.action, "like"),
             eq(book.userId, session.user.id),
             eq(book.isAvailable, true),
-            eq(book.isDeleted, false),
+            or(isNull(book.isDeleted), eq(book.isDeleted, false)),
           ),
         )
         .limit(1);

@@ -3,7 +3,7 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { db } from "@/db";
 import { book, swipe, user, wantedBook, userProfile } from "@/db/schema";
-import { eq, and, ne, notInArray, inArray } from "drizzle-orm";
+import { eq, and, ne, notInArray, inArray, or, isNull } from "drizzle-orm";
 import { SwipeInterface } from "./_components/swipe-interface";
 import { GenreFilter } from "@/app/discover/_components/genre-filter";
 
@@ -67,8 +67,8 @@ export default async function DiscoverPage({
     .leftJoin(userProfile, eq(user.id, userProfile.userId))
     .where(
       and(
-        eq(book.isAvailable, true),
-        eq(book.isDeleted, false),
+  eq(book.isAvailable, true),
+  or(isNull(book.isDeleted), eq(book.isDeleted, false)),
         ne(book.userId, session.user.id),
         selectedGenres.length > 0
           ? inArray(book.genre, selectedGenres)
@@ -97,7 +97,7 @@ export default async function DiscoverPage({
       .where(
         and(
           eq(book.isAvailable, true),
-          eq(book.isDeleted, false),
+          or(isNull(book.isDeleted), eq(book.isDeleted, false)),
           ne(book.userId, session.user.id),
           notInArray(book.id, swipedBookIds),
           selectedGenres.length > 0

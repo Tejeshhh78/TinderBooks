@@ -3,7 +3,7 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { db } from "@/db";
 import { book, match } from "@/db/schema";
-import { eq, or, inArray, and } from "drizzle-orm";
+import { eq, or, inArray, and, or as orFn, isNull } from "drizzle-orm";
 import { BookList } from "./_components/book-list";
 import { WantedBookList } from "./_components/wanted-book-list";
 import { AddBookDialog } from "./_components/add-book-dialog";
@@ -22,7 +22,12 @@ export default async function MyBooksPage() {
   const myBooks = await db
     .select()
     .from(book)
-    .where(and(eq(book.userId, session.user.id), eq(book.isDeleted, false)));
+    .where(
+      and(
+        eq(book.userId, session.user.id),
+        orFn(isNull(book.isDeleted), eq(book.isDeleted, false)),
+      ),
+    );
 
   // Compute which of my books are currently involved in pending/active matches
   const myBookIds = myBooks.map((b) => b.id);
