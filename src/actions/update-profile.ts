@@ -27,17 +27,27 @@ export async function updateProfile(formData: FormData) {
     return { error: "Unauthorized" };
   }
 
+  const rawBio = formData.get("bio");
+  const rawCity = formData.get("city");
+  const rawGenres = formData.get("genres");
+  const rawImageUrl = formData.get("imageUrl");
+
   const data = {
-    bio: formData.get("bio") as string,
-    city: formData.get("city") as string,
-    genres: formData.get("genres") as string,
-    imageUrl: formData.get("imageUrl") as string,
+    bio: typeof rawBio === "string" && rawBio.trim() !== "" ? rawBio : undefined,
+    city: typeof rawCity === "string" && rawCity.trim() !== "" ? rawCity : undefined,
+    // Genres is required: ensure it's a stringified array
+    genres: typeof rawGenres === "string" ? rawGenres : "[]",
+    // Optional: when not provided, keep undefined; empty string means clear image
+    imageUrl:
+      typeof rawImageUrl === "string"
+        ? rawImageUrl
+        : undefined,
   };
 
   const parsed = updateProfileSchema.safeParse(data);
 
   if (!parsed.success) {
-    return { error: "Invalid data" };
+    return { error: parsed.error.issues[0]?.message || "Invalid data" };
   }
 
   try {
