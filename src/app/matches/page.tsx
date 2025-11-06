@@ -13,7 +13,9 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { MessageCircle } from "lucide-react";
+import { MessageCircle, Trash2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { deleteMatch } from "@/actions/delete-match";
 import Image from "next/image";
 
 export default async function MatchesPage() {
@@ -103,6 +105,19 @@ export default async function MatchesPage() {
                     >
                       {m.status}
                     </Badge>
+                  </div>
+                  <div className="mt-2 flex justify-end">
+                    <form
+                      action={async (formData) => {
+                        "use server";
+                        formData.set("matchId", m.matchId);
+                        await deleteMatch(formData);
+                      }}
+                    >
+                      <Button variant="destructive" size="sm">
+                        <Trash2 className="size-4 mr-2" /> Delete
+                      </Button>
+                    </form>
                   </div>
                 </CardHeader>
                 <CardContent>

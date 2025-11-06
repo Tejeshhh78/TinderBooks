@@ -2,7 +2,7 @@
 
 import "server-only";
 import { db } from "@/db";
-import { userProfile } from "@/db/schema";
+import { userProfile, user } from "@/db/schema";
 import { auth } from "@/lib/auth-server";
 import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
@@ -13,6 +13,7 @@ const updateProfileSchema = z.object({
   bio: z.string().max(500).optional(),
   city: z.string().max(100).optional(),
   genres: z.string(), // JSON stringified array
+  imageUrl: z.string().url().optional().or(z.literal("")),
 });
 
 export async function updateProfile(formData: FormData) {
@@ -28,6 +29,7 @@ export async function updateProfile(formData: FormData) {
     bio: formData.get("bio") as string,
     city: formData.get("city") as string,
     genres: formData.get("genres") as string,
+    imageUrl: formData.get("imageUrl") as string,
   };
 
   const parsed = updateProfileSchema.safeParse(data);
@@ -62,6 +64,14 @@ export async function updateProfile(formData: FormData) {
           genres: parsed.data.genres,
         })
         .where(eq(userProfile.userId, session.user.id));
+    }
+
+    // Update user image if provided (empty string clears it)
+    if (parsed.data.imageUrl !== undefined) {
+      await db
+        .update(user)
+        .set({ image: parsed.data.imageUrl || null })
+        .where(eq(user.id, session.user.id));
     }
 
     revalidatePath("/", "layout");

@@ -1,9 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
-import { useRef } from "react";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 
 const GENRES = [
@@ -24,35 +22,45 @@ const GENRES = [
   "Children's",
 ];
 
-export function GenreFilter({ selectedGenre }: { selectedGenre?: string }) {
+export function GenreFilter({ selectedGenres = [] }: { selectedGenres?: string[] }) {
   const pathname = usePathname();
   const formRef = useRef<HTMLFormElement | null>(null);
-  const [value, setValue] = useState<string>(selectedGenre ?? "");
+  const [values, setValues] = useState<string[]>(selectedGenres);
 
   useEffect(() => {
-    setValue(selectedGenre ?? "");
-  }, [selectedGenre]);
+    setValues(selectedGenres);
+  }, [selectedGenres]);
+
+  const toggle = (g: string) => {
+    setValues((prev) =>
+      prev.includes(g) ? prev.filter((x) => x !== g) : [...prev, g],
+    );
+  };
 
   return (
-  <form ref={formRef} method="GET" action={pathname} className="mb-6 flex items-center gap-3 justify-center">
-      <input type="hidden" name="genre" value={value} />
-      <Select value={value} onValueChange={setValue}>
-        <SelectTrigger>
-          <SelectValue placeholder="Filter by genre" />
-        </SelectTrigger>
-        <SelectContent>
-          {GENRES.map((g) => (
-            <SelectItem key={g} value={g}>
-              {g}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+  <form ref={formRef} method="GET" action={pathname} className="mb-6 flex flex-col items-center gap-3">
+      <input type="hidden" name="genres" value={values.join(",")} />
+      <div className="flex flex-wrap gap-2 justify-center">
+        {GENRES.map((g) => (
+          <button
+            key={g}
+            type="button"
+            onClick={() => toggle(g)}
+            className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
+              values.includes(g)
+                ? "bg-primary text-primary-foreground"
+                : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
+            }`}
+          >
+            {g}
+          </button>
+        ))}
+      </div>
       <Button
         type="button"
         variant="secondary"
         onClick={() => {
-          setValue("");
+          setValues([]);
           // submit after state updates the hidden input
           setTimeout(() => formRef.current?.submit(), 0);
         }}

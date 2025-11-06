@@ -3,6 +3,7 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { db } from "@/db";
 import { userProfile } from "@/db/schema";
+import Image from "next/image";
 import { eq } from "drizzle-orm";
 import { ProfileForm } from "./_components/profile-form";
 
@@ -28,15 +29,30 @@ export default async function ProfilePage() {
       <h1 className="text-3xl font-bold mb-6">Your Profile</h1>
 
       <div className="bg-card rounded-lg border p-6 mb-6">
-        <div className="flex items-center gap-4 mb-6">
-          <div className="size-20 rounded-full bg-primary/10 flex items-center justify-center text-2xl font-bold text-primary">
-            {session.user.name?.charAt(0).toUpperCase()}
-          </div>
+        <div className="flex items-center gap-4 mb-4">
+          {session.user.image ? (
+            <div className="relative w-20 h-20 rounded-full overflow-hidden">
+              <Image
+                src={session.user.image}
+                alt={session.user.name || "profile"}
+                fill
+                sizes="80px"
+                className="object-cover"
+              />
+            </div>
+          ) : (
+            <div className="size-20 rounded-full bg-primary/10 flex items-center justify-center text-2xl font-bold text-primary">
+              {session.user.name?.charAt(0).toUpperCase()}
+            </div>
+          )}
           <div>
             <h2 className="text-xl font-semibold">{session.user.name}</h2>
             <p className="text-muted-foreground">{session.user.email}</p>
           </div>
         </div>
+        <p className="text-xs text-muted-foreground">
+          Note: When you match with someone, they can see your name, city, bio, and favorite genres.
+        </p>
       </div>
 
       <ProfileForm existingProfile={existingProfile} />

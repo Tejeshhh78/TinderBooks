@@ -3,14 +3,14 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { db } from "@/db";
 import { book, swipe, user, wantedBook, userProfile } from "@/db/schema";
-import { eq, and, ne, notInArray } from "drizzle-orm";
+import { eq, and, ne, notInArray, inArray } from "drizzle-orm";
 import { SwipeInterface } from "./_components/swipe-interface";
 import { GenreFilter } from "@/app/discover/_components/genre-filter";
 
 export default async function DiscoverPage({
   searchParams,
 }: {
-  searchParams: Promise<{ genre?: string }>;
+  searchParams: Promise<{ genre?: string; genres?: string }>;
 }) {
   const session = await auth.api.getSession({
     headers: await headers(),
@@ -20,7 +20,12 @@ export default async function DiscoverPage({
     redirect("/login");
   }
 
-  const { genre } = await searchParams;
+  const { genre, genres } = await searchParams;
+  const selectedGenres = genres
+    ? genres.split(",").map((g) => g.trim()).filter(Boolean)
+    : genre
+      ? [genre]
+      : [];
 
   // Get books user has already swiped
   const swipedBooks = await db
@@ -64,7 +69,9 @@ export default async function DiscoverPage({
       and(
         eq(book.isAvailable, true),
         ne(book.userId, session.user.id),
-        genre ? eq(book.genre, genre) : eq(book.genre, book.genre),
+        selectedGenres.length > 0
+          ? inArray(book.genre, selectedGenres)
+          : eq(book.genre, book.genre),
       ),
     )
     .limit(50);
@@ -91,7 +98,9 @@ export default async function DiscoverPage({
           eq(book.isAvailable, true),
           ne(book.userId, session.user.id),
           notInArray(book.id, swipedBookIds),
-          genre ? eq(book.genre, genre) : eq(book.genre, book.genre),
+          selectedGenres.length > 0
+            ? inArray(book.genre, selectedGenres)
+            : eq(book.genre, book.genre),
         ),
       )
       .limit(50);
@@ -139,7 +148,7 @@ export default async function DiscoverPage({
   return (
     <div className="container mx-auto max-w-2xl py-8 px-4">
       <h1 className="text-3xl font-bold mb-6 text-center">Discover Books</h1>
-      <GenreFilter selectedGenre={genre} />
+  <GenreFilter selectedGenres={selectedGenres} />
       <SwipeInterface books={prioritizedBooks} />
     </div>
   );

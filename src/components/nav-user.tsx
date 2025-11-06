@@ -28,6 +28,8 @@ import { logout } from "@/actions/logout";
 import { useActionState } from "react";
 import { Loader2Icon } from "lucide-react";
 import { useSession } from "@/lib/auth-client";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 export function NavUser() {
   const { isMobile } = useSidebar();
@@ -36,6 +38,7 @@ export function NavUser() {
 
   // Example of how to use the useSession hook in client-side components
   const session = useSession();
+  const router = useRouter();
 
   return (
     <SidebarMenu>
@@ -95,15 +98,15 @@ export function NavUser() {
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={() => router.push("/profile")}>
                 <IconUserCircle />
                 Account
               </DropdownMenuItem>
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={() => toast.info("Billing is not implemented yet.") }>
                 <IconCreditCard />
                 Billing
               </DropdownMenuItem>
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={() => toast.info("Notifications are not implemented yet.") }>
                 <IconNotification />
                 Notifications
               </DropdownMenuItem>
