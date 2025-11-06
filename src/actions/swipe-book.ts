@@ -2,12 +2,12 @@
 
 import "server-only";
 import { db } from "@/db";
-import { swipe, match, book, wantedBook } from "@/db/schema";
+import { swipe, match, book } from "@/db/schema";
 import { auth } from "@/lib/auth-server";
 import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { randomUUID } from "node:crypto";
-import { eq, and } from "drizzle-orm";
+import { eq, and, or } from "drizzle-orm";
 
 export async function swipeBook(bookId: string, action: "like" | "pass") {
   const session = await auth.api.getSession({
@@ -19,7 +19,7 @@ export async function swipeBook(bookId: string, action: "like" | "pass") {
   }
 
   try {
-    // Record the swipe
+    // Record the swipe event
     await db.insert(swipe).values({
       id: randomUUID(),
       userId: session.user.id,
@@ -27,116 +27,65 @@ export async function swipeBook(bookId: string, action: "like" | "pass") {
       action,
     });
 
-    // If it's a "like", check for potential matches
+    // On like: try to create a match based on mutual likes
     if (action === "like") {
-      const likedBook = await db
-        .select()
-        .from(book)
-        .where(eq(book.id, bookId))
-        .limit(1);
-
-      if (likedBook.length === 0) return { success: true };
-
+      // Find the owner of the liked book
+      const likedBook = await db.select().from(book).where(eq(book.id, bookId)).limit(1);
+      if (likedBook.length === 0) {
+        return { success: true, matched: false };
+      }
       const bookOwnerId = likedBook[0].userId;
 
-      // Get my wanted books to check if I want this book
-      const myWants = await db
-        .select()
-        .from(wantedBook)
-        .where(eq(wantedBook.userId, session.user.id));
+      // Has the owner liked any of my available books?
+      const ownerLikedMyBook = await db
+        .select({ likedMyBookId: swipe.bookId })
+        .from(swipe)
+        .leftJoin(book, eq(swipe.bookId, book.id))
+        .where(
+          and(
+            eq(swipe.userId, bookOwnerId),
+            eq(swipe.action, "like"),
+            eq(book.userId, session.user.id),
+            eq(book.isAvailable, true),
+          ),
+        )
+        .limit(1);
 
-      // Check if I want this book (by title or genre)
-      let iWantThisBook = false;
-      for (const want of myWants) {
-        // Check title match
-        if (
-          want.title &&
-          want.title.toLowerCase() === likedBook[0].title.toLowerCase()
-        ) {
-          iWantThisBook = true;
-          break;
-        }
+      if (ownerLikedMyBook.length > 0) {
+        const myBookId = ownerLikedMyBook[0].likedMyBookId;
 
-        // Check genre match
-        if (want.genres) {
-          const wantedGenres = JSON.parse(want.genres) as string[];
-          if (wantedGenres.includes(likedBook[0].genre)) {
-            iWantThisBook = true;
-            break;
-          }
-        }
-      }
-
-      // If I want this book, check if I have a book the owner wants
-      if (iWantThisBook) {
-        const myBooks = await db
+        // Avoid duplicate active matches regardless of book order
+        const existing = await db
           .select()
-          .from(book)
+          .from(match)
           .where(
-            and(eq(book.userId, session.user.id), eq(book.isAvailable, true)),
-          );
+            and(
+              eq(match.status, "active"),
+              or(
+                and(eq(match.book1Id, bookId), eq(match.book2Id, myBookId)),
+                and(eq(match.book2Id, bookId), eq(match.book1Id, myBookId)),
+              ),
+            ),
+          )
+          .limit(1);
 
-        const ownerWants = await db
-          .select()
-          .from(wantedBook)
-          .where(eq(wantedBook.userId, bookOwnerId));
+        if (existing.length === 0) {
+          await db.insert(match).values({
+            id: randomUUID(),
+            user1Id: session.user.id,
+            user2Id: bookOwnerId,
+            book1Id: bookId,
+            book2Id: myBookId,
+            status: "active",
+          });
 
-        // Check if any of my books match what the owner wants
-        for (const myBook of myBooks) {
-          for (const want of ownerWants) {
-            let ownerWantsMyBook = false;
-
-            // Check if specific title match
-            if (
-              want.title &&
-              want.title.toLowerCase() === myBook.title.toLowerCase()
-            ) {
-              ownerWantsMyBook = true;
-            }
-
-            // Check if genre match
-            if (want.genres && !ownerWantsMyBook) {
-              const wantedGenres = JSON.parse(want.genres) as string[];
-              if (wantedGenres.includes(myBook.genre)) {
-                ownerWantsMyBook = true;
-              }
-            }
-
-            // If mutual interest found, create match!
-            if (ownerWantsMyBook) {
-              // Check if match already exists
-              const existingMatch = await db
-                .select()
-                .from(match)
-                .where(
-                  and(
-                    eq(match.book1Id, bookId),
-                    eq(match.book2Id, myBook.id),
-                    eq(match.status, "active"),
-                  ),
-                )
-                .limit(1);
-
-              if (existingMatch.length === 0) {
-                await db.insert(match).values({
-                  id: randomUUID(),
-                  user1Id: session.user.id, // User who liked
-                  user2Id: bookOwnerId, // Book owner
-                  book1Id: bookId, // Book that was liked (owned by user2)
-                  book2Id: myBook.id, // My book (that owner wants)
-                  status: "active",
-                });
-
-                revalidatePath("/", "layout");
-                return { success: true, matched: true };
-              }
-            }
-          }
+          revalidatePath("/", "layout");
+          return { success: true, matched: true };
         }
       }
     }
-    // Do not revalidate the whole app on a normal swipe to keep the UI counter stable.
-    // The updated list will be reflected on next page load or when a match occurs (see above).
+
+    // Normal swipe: no full revalidation to keep the counter stable
     return { success: true, matched: false };
   } catch (error) {
     console.error("Error swiping book:", error);
