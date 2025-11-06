@@ -12,6 +12,7 @@ import { ArrowLeft, Trash2, Check } from "lucide-react";
 import { deleteMatch } from "@/actions/delete-match";
 import { acceptMatch } from "@/actions/accept-match";
 import Image from "next/image";
+import { safeImageSrc } from "@/lib/utils";
 
 interface PageProps {
   params: Promise<{ matchId: string }>;
@@ -125,17 +126,15 @@ export default async function MatchDetailPage({ params }: PageProps) {
           </CardHeader>
           <CardContent>
             <div className="flex items-center gap-3">
-              {myBook.imageUrl && (
-                <div className="relative w-16 h-20">
-                  <Image
-                    src={myBook.imageUrl}
-                    alt={myBook.title}
-                    fill
-                    sizes="80px"
-                    className="object-cover rounded"
-                  />
-                </div>
-              )}
+              <div className="relative w-16 h-20">
+                <Image
+                  src={safeImageSrc(myBook.imageUrl, "book")}
+                  alt={myBook.title}
+                  fill
+                  sizes="80px"
+                  className="object-cover rounded"
+                />
+              </div>
               <div>
                 <p className="font-semibold">{myBook.title}</p>
                 <p className="text-sm text-muted-foreground">{myBook.author}</p>
@@ -152,17 +151,15 @@ export default async function MatchDetailPage({ params }: PageProps) {
           </CardHeader>
           <CardContent>
             <div className="flex items-center gap-3">
-              {theirBook.imageUrl && (
-                <div className="relative w-16 h-20">
-                  <Image
-                    src={theirBook.imageUrl}
-                    alt={theirBook.title}
-                    fill
-                    sizes="80px"
-                    className="object-cover rounded"
-                  />
-                </div>
-              )}
+              <div className="relative w-16 h-20">
+                <Image
+                  src={safeImageSrc(theirBook.imageUrl, "book")}
+                  alt={theirBook.title}
+                  fill
+                  sizes="80px"
+                  className="object-cover rounded"
+                />
+              </div>
               <div>
                 <p className="font-semibold">{theirBook.title}</p>
                 <p className="text-sm text-muted-foreground">

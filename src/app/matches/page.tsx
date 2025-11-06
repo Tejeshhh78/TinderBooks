@@ -18,6 +18,7 @@ import { Button } from "@/components/ui/button";
 import { deleteMatch } from "@/actions/delete-match";
 import { acceptMatch } from "@/actions/accept-match";
 import Image from "next/image";
+import { safeImageSrc } from "@/lib/utils";
 
 export default async function MatchesPage() {
   const session = await auth.api.getSession({
@@ -146,17 +147,15 @@ export default async function MatchesPage() {
                         You offer:
                       </p>
                       <div className="flex items-center gap-3">
-                        {m.myBook.imageUrl && (
-                          <div className="relative w-12 h-16">
-                            <Image
-                              src={m.myBook.imageUrl}
-                              alt={m.myBook.title}
-                              fill
-                              sizes="64px"
-                              className="object-cover rounded"
-                            />
-                          </div>
-                        )}
+                        <div className="relative w-12 h-16">
+                          <Image
+                            src={safeImageSrc(m.myBook.imageUrl, "book")}
+                            alt={m.myBook.title}
+                            fill
+                            sizes="64px"
+                            className="object-cover rounded"
+                          />
+                        </div>
                         <div>
                           <p className="font-semibold">{m.myBook.title}</p>
                           <p className="text-sm text-muted-foreground">
@@ -170,17 +169,15 @@ export default async function MatchesPage() {
                         You receive:
                       </p>
                       <div className="flex items-center gap-3">
-                        {m.theirBook.imageUrl && (
-                          <div className="relative w-12 h-16">
-                            <Image
-                              src={m.theirBook.imageUrl}
-                              alt={m.theirBook.title}
-                              fill
-                              sizes="64px"
-                              className="object-cover rounded"
-                            />
-                          </div>
-                        )}
+                        <div className="relative w-12 h-16">
+                          <Image
+                            src={safeImageSrc(m.theirBook.imageUrl, "book")}
+                            alt={m.theirBook.title}
+                            fill
+                            sizes="64px"
+                            className="object-cover rounded"
+                          />
+                        </div>
                         <div>
                           <p className="font-semibold">{m.theirBook.title}</p>
                           <p className="text-sm text-muted-foreground">

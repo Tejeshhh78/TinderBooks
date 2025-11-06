@@ -14,6 +14,7 @@ import { deleteBook } from "@/actions/delete-book";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import Image from "next/image";
+import { safeImageSrc } from "@/lib/utils";
 import { EditBookDialog } from "./edit-book-dialog";
 
 interface Book {
@@ -58,17 +59,15 @@ export function BookList({ books, inMatchingBookIds = [] }: BookListProps) {
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
       {books.map((book) => (
         <Card key={book.id}>
-          {book.imageUrl && (
-            <div className="relative aspect-[3/4] w-full overflow-hidden rounded-t-lg">
-              <Image
-                src={book.imageUrl}
-                alt={book.title}
-                fill
-                sizes="(max-width: 768px) 100vw, 512px"
-                className="object-cover"
-              />
-            </div>
-          )}
+          <div className="relative aspect-[3/4] w-full overflow-hidden rounded-t-lg">
+            <Image
+              src={safeImageSrc(book.imageUrl, "book")}
+              alt={book.title}
+              fill
+              sizes="(max-width: 768px) 100vw, 512px"
+              className="object-cover"
+            />
+          </div>
           <CardHeader>
             <div className="flex items-start justify-between gap-2">
               <div className="flex-1 min-w-0">

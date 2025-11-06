@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
+import { safeImageSrc } from "@/lib/utils";
 import {
   Card,
   CardContent,
@@ -146,7 +147,7 @@ export function SwipeInterface({ books }: SwipeInterfaceProps) {
           No more books to discover
         </h2>
         <p className="text-muted-foreground">
-          Check back later for new listings or add more books to your wishlist!
+          Check back later for new listings or add more books under “My Books”.
         </p>
       </div>
     );
@@ -179,17 +180,15 @@ export function SwipeInterface({ books }: SwipeInterfaceProps) {
               : undefined
           }
         >
-          {currentBook.imageUrl && (
-            <div className="relative aspect-[3/4] w-full overflow-hidden rounded-t-lg">
-              <Image
-                src={currentBook.imageUrl}
-                alt={currentBook.title}
-                fill
-                sizes="(max-width: 768px) 100vw, 512px"
-                className="object-cover"
-              />
-            </div>
-          )}
+          <div className="relative aspect-[3/4] w-full overflow-hidden rounded-t-lg">
+            <Image
+              src={safeImageSrc(currentBook.imageUrl, "book")}
+              alt={currentBook.title}
+              fill
+              sizes="(max-width: 768px) 100vw, 512px"
+              className="object-cover"
+            />
+          </div>
           <CardHeader>
             <CardTitle className="text-2xl">{currentBook.title}</CardTitle>
             <CardDescription className="text-lg">

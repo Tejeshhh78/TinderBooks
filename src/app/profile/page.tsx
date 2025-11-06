@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { db } from "@/db";
 import { userProfile } from "@/db/schema";
 import Image from "next/image";
+import { safeImageSrc } from "@/lib/utils";
 import { eq } from "drizzle-orm";
 import { ProfileForm } from "./_components/profile-form";
 
@@ -33,7 +34,7 @@ export default async function ProfilePage() {
           {session.user.image ? (
             <div className="relative w-20 h-20 rounded-full overflow-hidden">
               <Image
-                src={session.user.image}
+                src={safeImageSrc(session.user.image, "avatar")}
                 alt={session.user.name || "profile"}
                 fill
                 sizes="80px"
