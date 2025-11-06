@@ -46,11 +46,20 @@ export async function acceptMatch(formData: FormData) {
       return { error: "Match cannot be accepted" };
     }
 
-    // Determine current user's book in this match
-  const isUser1 = m.user1Id === session.user.id;
-  // By convention: user1 <-> book1, user2 <-> book2
-  const myBookId = isUser1 ? m.book1Id : m.book2Id;
-  const theirBookId = isUser1 ? m.book2Id : m.book1Id;
+    // Determine the current user's own book by ownership to tolerate legacy
+    // matches that might have used a different book ordering.
+    const bothBooks = await db
+      .select({ id: book.id, userId: book.userId, isAvailable: book.isAvailable })
+      .from(book)
+      .where(or(eq(book.id, m.book1Id), eq(book.id, m.book2Id)));
+
+    const myBook = bothBooks.find((b) => b.userId === session.user.id);
+    const theirBook = bothBooks.find((b) => b.userId !== session.user.id);
+    if (!myBook || !theirBook) {
+      return { error: "Books not found for match" };
+    }
+    const myBookId = myBook.id;
+    const theirBookId = theirBook.id;
 
     // Reserve my book (set unavailable)
     await db.update(book).set({ isAvailable: false }).where(eq(book.id, myBookId));

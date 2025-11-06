@@ -46,6 +46,7 @@ export default async function RootLayout({
     <html lang="en" suppressHydrationWarning className={isDark ? "dark" : undefined}>
       <head>
         {/* No-flash theme script: ensures correct theme before hydration */}
+        {/* biome-ignore lint/security/noDangerouslySetInnerHtml: Theme no-flash init before hydration */}
         <script
           id="theme-init"
           dangerouslySetInnerHTML={{

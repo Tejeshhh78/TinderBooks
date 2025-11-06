@@ -3,7 +3,7 @@ import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import { db } from "@/db";
 import { match, message } from "@/db/schema";
-import { and, eq, or, ne, inArray, desc } from "drizzle-orm";
+import { and, eq, or, ne, inArray, desc, isNull } from "drizzle-orm";
 
 export async function GET() {
   const session = await auth.api.getSession({ headers: await headers() });
@@ -16,7 +16,11 @@ export async function GET() {
     .select({ id: match.id, createdAt: match.createdAt })
     .from(match)
     .where(
-      and(or(eq(match.user1Id, session.user.id), eq(match.user2Id, session.user.id)), eq(match.status, "pending")),
+      and(
+        or(eq(match.user1Id, session.user.id), eq(match.user2Id, session.user.id)),
+        eq(match.status, "pending"),
+        or(isNull(match.deletedForUserId), ne(match.deletedForUserId, session.user.id)),
+      ),
     )
     .orderBy(desc(match.createdAt))
     .limit(1);
@@ -26,7 +30,13 @@ export async function GET() {
   const myMatches = await db
     .select({ id: match.id })
     .from(match)
-    .where(and(or(eq(match.user1Id, session.user.id), eq(match.user2Id, session.user.id)), ne(match.status, "cancelled")));
+    .where(
+      and(
+        or(eq(match.user1Id, session.user.id), eq(match.user2Id, session.user.id)),
+        ne(match.status, "cancelled"),
+        or(isNull(match.deletedForUserId), ne(match.deletedForUserId, session.user.id)),
+      ),
+    );
   const matchIds = myMatches.map((m) => m.id);
   let hasMessage = false;
   let latestMsgMs: number | undefined;
