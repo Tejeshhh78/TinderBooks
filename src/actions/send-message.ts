@@ -1,25 +1,27 @@
 "use server";
 
 import "server-only";
-
 import { db } from "@/db";
-import { message } from "@/db/schema";
-import { getCurrentUser } from "@/lib/auth-server";
+import { message, match } from "@/db/schema";
+import { auth } from "@/lib/auth-server";
+import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
+import { randomUUID } from "node:crypto";
+import { eq, or, and } from "drizzle-orm";
 
 const sendMessageSchema = z.object({
   matchId: z.string(),
-  content: z.string().min(1, "Message cannot be empty").max(1000),
+  content: z.string().min(1).max(1000),
 });
 
 export async function sendMessage(formData: FormData) {
-  const user = await getCurrentUser();
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
 
-  if (!user) {
-    return {
-      error: "Not authenticated",
-    };
+  if (!session) {
+    return { error: "Unauthorized" };
   }
 
   const data = {
@@ -27,32 +29,43 @@ export async function sendMessage(formData: FormData) {
     content: formData.get("content") as string,
   };
 
-  const validated = sendMessageSchema.safeParse(data);
+  const parsed = sendMessageSchema.safeParse(data);
 
-  if (!validated.success) {
-    return {
-      error: validated.error.issues[0].message,
-    };
+  if (!parsed.success) {
+    return { error: "Invalid message" };
   }
 
   try {
+    // Verify user is part of this match
+    const matchData = await db
+      .select()
+      .from(match)
+      .where(
+        and(
+          eq(match.id, parsed.data.matchId),
+          or(
+            eq(match.user1Id, session.user.id),
+            eq(match.user2Id, session.user.id),
+          ),
+        ),
+      )
+      .limit(1);
+
+    if (matchData.length === 0) {
+      return { error: "Match not found" };
+    }
+
     await db.insert(message).values({
-      id: crypto.randomUUID(),
-      matchId: validated.data.matchId,
-      senderId: user.id,
-      content: validated.data.content,
-      read: false,
+      id: randomUUID(),
+      matchId: parsed.data.matchId,
+      senderId: session.user.id,
+      content: parsed.data.content,
     });
 
     revalidatePath("/", "layout");
-
-    return {
-      success: true,
-    };
+    return { success: true };
   } catch (error) {
-    console.error("Failed to send message:", error);
-    return {
-      error: "Failed to send message",
-    };
+    console.error("Error sending message:", error);
+    return { error: "Failed to send message" };
   }
 }

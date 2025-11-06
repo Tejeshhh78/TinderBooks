@@ -13,13 +13,19 @@ export async function middleware(request: NextRequest) {
     headers: await headers(),
   });
 
-  // Very simple auth check with redirect if not authenticated.
-  if (!session) {
+  // Protect routes that require authentication
+  const protectedRoutes = ["/discover", "/my-books", "/matches", "/profile"];
+  const isProtectedRoute = protectedRoutes.some((route) =>
+    request.nextUrl.pathname.startsWith(route),
+  );
+
+  if (isProtectedRoute && !session) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
+
   return NextResponse.next();
 }
 export const config = {
   runtime: "nodejs",
-  matcher: ["/dashboard", "/books", "/swipe", "/matches", "/messages"], // Apply middleware to specific routes
+  matcher: ["/discover", "/my-books", "/matches/:path*", "/profile"], // Apply middleware to specific routes
 };

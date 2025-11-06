@@ -83,75 +83,65 @@ export const verification = sqliteTable("verification", {
 });
 
 /**
- * Below, feel free to delete/update/add tables as you see fit for your app.
- */
-export const demoData = sqliteTable("demo_data", {
-  id: integer("id").primaryKey(),
-  header: text("header").notNull(),
-  type: text("type").notNull(),
-  status: text("status").notNull(),
-  target: integer("target").notNull(),
-  limit: integer("limit").notNull(),
-  reviewer: text("reviewer").notNull(),
-});
-
-/**
- * BookSwap feature tables
+ * BookSwap application schema
  */
 
-// User profile extensions
+// User profiles with additional BookSwap data
 export const userProfile = sqliteTable("user_profile", {
-  id: text("id").primaryKey(),
   userId: text("user_id")
-    .notNull()
-    .unique()
+    .primaryKey()
     .references(() => user.id, { onDelete: "cascade" }),
   bio: text("bio"),
-  location: text("location"),
-  favoriteGenres: text("favorite_genres"), // JSON string array
+  city: text("city"),
+  genres: text("genres"), // JSON array of preferred genres
   createdAt: integer("created_at", { mode: "timestamp_ms" })
     .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
     .notNull(),
   updatedAt: integer("updated_at", { mode: "timestamp_ms" })
     .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
-    .$onUpdate(() => new Date())
+    .$onUpdate(() => /* @__PURE__ */ new Date())
     .notNull(),
 });
 
-// Books table
+// Books that users have and are willing to trade
 export const book = sqliteTable("book", {
   id: text("id").primaryKey(),
+  userId: text("user_id")
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
   title: text("title").notNull(),
   author: text("author").notNull(),
   genre: text("genre").notNull(),
-  condition: text("condition", { enum: ["new", "like-new", "good", "fair"] }).notNull(),
-  coverUrl: text("cover_url"),
+  condition: text("condition").notNull(), // "new", "like-new", "good", "fair", "poor"
+  imageUrl: text("image_url"),
   description: text("description"),
+  isAvailable: integer("is_available", { mode: "boolean" })
+    .default(true)
+    .notNull(),
   createdAt: integer("created_at", { mode: "timestamp_ms" })
     .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
     .notNull(),
   updatedAt: integer("updated_at", { mode: "timestamp_ms" })
     .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
-    .$onUpdate(() => new Date())
+    .$onUpdate(() => /* @__PURE__ */ new Date())
     .notNull(),
 });
 
-// User Books junction table (have/want)
-export const userBook = sqliteTable("user_book", {
+// Books that users want (wishlist)
+export const wantedBook = sqliteTable("wanted_book", {
   id: text("id").primaryKey(),
   userId: text("user_id")
     .notNull()
     .references(() => user.id, { onDelete: "cascade" }),
-  bookId: text("book_id")
-    .notNull()
-    .references(() => book.id, { onDelete: "cascade" }),
-  type: text("type", { enum: ["have", "want"] }).notNull(),
+  title: text("title"), // Optional: can be null if searching by genre only
+  author: text("author"), // Optional
+  genres: text("genres"), // JSON array of genres user is interested in
   createdAt: integer("created_at", { mode: "timestamp_ms" })
     .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
     .notNull(),
 });
 
-// Swipes table (track user swipes on books)
+// Swipe actions
 export const swipe = sqliteTable("swipe", {
   id: text("id").primaryKey(),
   userId: text("user_id")
@@ -160,13 +150,13 @@ export const swipe = sqliteTable("swipe", {
   bookId: text("book_id")
     .notNull()
     .references(() => book.id, { onDelete: "cascade" }),
-  direction: text("direction", { enum: ["like", "pass"] }).notNull(),
+  action: text("action").notNull(), // "like" or "pass"
   createdAt: integer("created_at", { mode: "timestamp_ms" })
     .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
     .notNull(),
 });
 
-// Matches table
+// Matches between users
 export const match = sqliteTable("match", {
   id: text("id").primaryKey(),
   user1Id: text("user1_id")
@@ -181,19 +171,13 @@ export const match = sqliteTable("match", {
   book2Id: text("book2_id")
     .notNull()
     .references(() => book.id, { onDelete: "cascade" }),
-  status: text("status", { enum: ["pending", "accepted", "declined", "completed"] })
-    .notNull()
-    .default("pending"),
+  status: text("status").notNull().default("active"), // "active", "completed", "cancelled"
   createdAt: integer("created_at", { mode: "timestamp_ms" })
     .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
     .notNull(),
-  updatedAt: integer("updated_at", { mode: "timestamp_ms" })
-    .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
-    .$onUpdate(() => new Date())
-    .notNull(),
 });
 
-// Messages table
+// Messages between matched users
 export const message = sqliteTable("message", {
   id: text("id").primaryKey(),
   matchId: text("match_id")
@@ -203,7 +187,6 @@ export const message = sqliteTable("message", {
     .notNull()
     .references(() => user.id, { onDelete: "cascade" }),
   content: text("content").notNull(),
-  read: integer("read", { mode: "boolean" }).notNull().default(false),
   createdAt: integer("created_at", { mode: "timestamp_ms" })
     .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
     .notNull(),

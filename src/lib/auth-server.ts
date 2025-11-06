@@ -1,5 +1,5 @@
 import "server-only";
-import { auth } from "./auth";
+import { auth as authInstance } from "./auth";
 import { headers } from "next/headers";
 
 /**
@@ -9,22 +9,20 @@ import { headers } from "next/headers";
  * Use all these functions only in your server-side actions, not in your client-side components.
  */
 
+// Export the auth instance for direct API access
+export const auth = authInstance;
+
 export const getServerSession = async () =>
-  await auth.api.getSession({
+  await authInstance.api.getSession({
     headers: await headers(),
   });
 
-export const getCurrentUser = async () => {
-  const session = await getServerSession();
-  return session?.user ?? null;
-};
+export const signInEmail = authInstance.api.signInEmail;
 
-export const signInEmail = auth.api.signInEmail;
+export const signUpEmail = authInstance.api.signUpEmail;
 
-export const signUpEmail = auth.api.signUpEmail;
+export const signOut = authInstance.api.signOut;
 
-export const signOut = auth.api.signOut;
+export const changeEmail = authInstance.api.changeEmail;
 
-export const changeEmail = auth.api.changeEmail;
-
-export const changePassword = auth.api.changePassword;
+export const changePassword = authInstance.api.changePassword;

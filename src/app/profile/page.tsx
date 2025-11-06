@@ -1,0 +1,45 @@
+import { auth } from "@/lib/auth-server";
+import { headers } from "next/headers";
+import { redirect } from "next/navigation";
+import { db } from "@/db";
+import { userProfile } from "@/db/schema";
+import { eq } from "drizzle-orm";
+import { ProfileForm } from "./_components/profile-form";
+
+export default async function ProfilePage() {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session) {
+    redirect("/login");
+  }
+
+  const profile = await db
+    .select()
+    .from(userProfile)
+    .where(eq(userProfile.userId, session.user.id))
+    .limit(1);
+
+  const existingProfile = profile[0] || null;
+
+  return (
+    <div className="container mx-auto max-w-2xl py-8 px-4">
+      <h1 className="text-3xl font-bold mb-6">Your Profile</h1>
+
+      <div className="bg-card rounded-lg border p-6 mb-6">
+        <div className="flex items-center gap-4 mb-6">
+          <div className="size-20 rounded-full bg-primary/10 flex items-center justify-center text-2xl font-bold text-primary">
+            {session.user.name?.charAt(0).toUpperCase()}
+          </div>
+          <div>
+            <h2 className="text-xl font-semibold">{session.user.name}</h2>
+            <p className="text-muted-foreground">{session.user.email}</p>
+          </div>
+        </div>
+      </div>
+
+      <ProfileForm existingProfile={existingProfile} />
+    </div>
+  );
+}

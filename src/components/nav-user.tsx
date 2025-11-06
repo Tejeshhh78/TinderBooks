@@ -30,12 +30,12 @@ import { Loader2Icon } from "lucide-react";
 import { useSession } from "@/lib/auth-client";
 
 export function NavUser() {
-	const { isMobile } = useSidebar();
+  const { isMobile } = useSidebar();
 
-	const [state, logoutAction, pending] = useActionState(logout, {});
+  const [_state, logoutAction, pending] = useActionState(logout, {});
 
-	// Example of how to use the useSession hook in client-side components
-	const session = useSession();
+  // Example of how to use the useSession hook in client-side components
+  const session = useSession();
 
   return (
     <SidebarMenu>

@@ -46,5 +46,5 @@ export const login = async (
 
   console.debug("Login successful");
 
-  redirect(("/dashboard" as unknown as never));
+  redirect("/discover");
 };

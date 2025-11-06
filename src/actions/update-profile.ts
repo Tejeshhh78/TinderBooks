@@ -1,41 +1,39 @@
 "use server";
 
 import "server-only";
-
 import { db } from "@/db";
 import { userProfile } from "@/db/schema";
-import { getCurrentUser } from "@/lib/auth-server";
+import { auth } from "@/lib/auth-server";
+import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { eq } from "drizzle-orm";
 
 const updateProfileSchema = z.object({
   bio: z.string().max(500).optional(),
-  location: z.string().max(100).optional(),
-  favoriteGenres: z.string().optional(), // JSON string array
+  city: z.string().max(100).optional(),
+  genres: z.string(), // JSON stringified array
 });
 
 export async function updateProfile(formData: FormData) {
-  const user = await getCurrentUser();
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
 
-  if (!user) {
-    return {
-      error: "Not authenticated",
-    };
+  if (!session) {
+    return { error: "Unauthorized" };
   }
 
   const data = {
     bio: formData.get("bio") as string,
-    location: formData.get("location") as string,
-    favoriteGenres: formData.get("favoriteGenres") as string,
+    city: formData.get("city") as string,
+    genres: formData.get("genres") as string,
   };
 
-  const validated = updateProfileSchema.safeParse(data);
+  const parsed = updateProfileSchema.safeParse(data);
 
-  if (!validated.success) {
-    return {
-      error: validated.error.issues[0].message,
-    };
+  if (!parsed.success) {
+    return { error: "Invalid data" };
   }
 
   try {
@@ -43,39 +41,33 @@ export async function updateProfile(formData: FormData) {
     const existingProfile = await db
       .select()
       .from(userProfile)
-      .where(eq(userProfile.userId, user.id))
+      .where(eq(userProfile.userId, session.user.id))
       .limit(1);
 
     if (existingProfile.length === 0) {
       // Create new profile
       await db.insert(userProfile).values({
-        id: crypto.randomUUID(),
-        userId: user.id,
-        bio: validated.data.bio || null,
-        location: validated.data.location || null,
-        favoriteGenres: validated.data.favoriteGenres || null,
+        userId: session.user.id,
+        bio: parsed.data.bio,
+        city: parsed.data.city,
+        genres: parsed.data.genres,
       });
     } else {
       // Update existing profile
       await db
         .update(userProfile)
         .set({
-          bio: validated.data.bio || null,
-          location: validated.data.location || null,
-          favoriteGenres: validated.data.favoriteGenres || null,
+          bio: parsed.data.bio,
+          city: parsed.data.city,
+          genres: parsed.data.genres,
         })
-        .where(eq(userProfile.userId, user.id));
+        .where(eq(userProfile.userId, session.user.id));
     }
 
     revalidatePath("/", "layout");
-
-    return {
-      success: true,
-    };
+    return { success: true };
   } catch (error) {
-    console.error("Failed to update profile:", error);
-    return {
-      error: "Failed to update profile",
-    };
+    console.error("Error updating profile:", error);
+    return { error: "Failed to update profile" };
   }
 }

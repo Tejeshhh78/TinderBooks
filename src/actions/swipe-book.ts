@@ -1,124 +1,145 @@
 "use server";
 
 import "server-only";
-
 import { db } from "@/db";
-import { swipe, match, userBook } from "@/db/schema";
-import { getCurrentUser } from "@/lib/auth-server";
+import { swipe, match, book, wantedBook } from "@/db/schema";
+import { auth } from "@/lib/auth-server";
+import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
-import { z } from "zod";
+import { randomUUID } from "node:crypto";
 import { eq, and } from "drizzle-orm";
 
-const swipeBookSchema = z.object({
-  bookId: z.string(),
-  direction: z.enum(["like", "pass"]),
-  offeredBookId: z.string().optional(),
-});
+export async function swipeBook(bookId: string, action: "like" | "pass") {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
 
-export async function swipeBook(formData: FormData) {
-  const user = await getCurrentUser();
-
-  if (!user) {
-    return {
-      error: "Not authenticated",
-    };
-  }
-
-  const data = {
-    bookId: formData.get("bookId") as string,
-    direction: formData.get("direction") as string,
-    offeredBookId: formData.get("offeredBookId") as string | undefined,
-  };
-
-  const validated = swipeBookSchema.safeParse(data);
-
-  if (!validated.success) {
-    return {
-      error: validated.error.issues[0].message,
-    };
+  if (!session) {
+    return { error: "Unauthorized" };
   }
 
   try {
     // Record the swipe
     await db.insert(swipe).values({
-      id: crypto.randomUUID(),
-      userId: user.id,
-      bookId: validated.data.bookId,
-      direction: validated.data.direction,
+      id: randomUUID(),
+      userId: session.user.id,
+      bookId,
+      action,
     });
 
-    // If it's a like, check for potential matches
-    if (validated.data.direction === "like" && validated.data.offeredBookId) {
-      // Get the book owner
-      const bookOwnerResult = await db
-        .select({ userId: userBook.userId })
-        .from(userBook)
-        .where(
-          and(
-            eq(userBook.bookId, validated.data.bookId),
-            eq(userBook.type, "have")
-          )
-        )
+    // If it's a "like", check for potential matches
+    if (action === "like") {
+      const likedBook = await db
+        .select()
+        .from(book)
+        .where(eq(book.id, bookId))
         .limit(1);
 
-      if (bookOwnerResult.length > 0 && bookOwnerResult[0].userId !== user.id) {
-        const otherUserId = bookOwnerResult[0].userId;
+      if (likedBook.length === 0) return { success: true };
 
-        // Check if the other user has liked any of our books
-        const mutualLikes = await db
-          .select({
-            swipeId: swipe.id,
-            swipedBookId: swipe.bookId,
-          })
-          .from(swipe)
-          .innerJoin(userBook, eq(swipe.bookId, userBook.bookId))
+      const bookOwnerId = likedBook[0].userId;
+
+      // Get my wanted books to check if I want this book
+      const myWants = await db
+        .select()
+        .from(wantedBook)
+        .where(eq(wantedBook.userId, session.user.id));
+
+      // Check if I want this book (by title or genre)
+      let iWantThisBook = false;
+      for (const want of myWants) {
+        // Check title match
+        if (
+          want.title &&
+          want.title.toLowerCase() === likedBook[0].title.toLowerCase()
+        ) {
+          iWantThisBook = true;
+          break;
+        }
+
+        // Check genre match
+        if (want.genres) {
+          const wantedGenres = JSON.parse(want.genres) as string[];
+          if (wantedGenres.includes(likedBook[0].genre)) {
+            iWantThisBook = true;
+            break;
+          }
+        }
+      }
+
+      // If I want this book, check if I have a book the owner wants
+      if (iWantThisBook) {
+        const myBooks = await db
+          .select()
+          .from(book)
           .where(
-            and(
-              eq(swipe.userId, otherUserId),
-              eq(swipe.direction, "like"),
-              eq(userBook.userId, user.id),
-              eq(userBook.type, "have")
-            )
+            and(eq(book.userId, session.user.id), eq(book.isAvailable, true)),
           );
 
-        // Check if they liked the specific book we're offering
-        const matchedBook = mutualLikes.find(
-          (like) => like.swipedBookId === validated.data.offeredBookId
-        );
+        const ownerWants = await db
+          .select()
+          .from(wantedBook)
+          .where(eq(wantedBook.userId, bookOwnerId));
 
-        if (matchedBook) {
-          // Create a match!
-          const matchId = crypto.randomUUID();
-          await db.insert(match).values({
-            id: matchId,
-            user1Id: user.id,
-            user2Id: otherUserId,
-            book1Id: validated.data.offeredBookId,
-            book2Id: validated.data.bookId,
-            status: "pending",
-          });
+        // Check if any of my books match what the owner wants
+        for (const myBook of myBooks) {
+          for (const want of ownerWants) {
+            let ownerWantsMyBook = false;
 
-          revalidatePath("/", "layout");
+            // Check if specific title match
+            if (
+              want.title &&
+              want.title.toLowerCase() === myBook.title.toLowerCase()
+            ) {
+              ownerWantsMyBook = true;
+            }
 
-          return {
-            success: true,
-            match: true,
-            matchId,
-          };
+            // Check if genre match
+            if (want.genres && !ownerWantsMyBook) {
+              const wantedGenres = JSON.parse(want.genres) as string[];
+              if (wantedGenres.includes(myBook.genre)) {
+                ownerWantsMyBook = true;
+              }
+            }
+
+            // If mutual interest found, create match!
+            if (ownerWantsMyBook) {
+              // Check if match already exists
+              const existingMatch = await db
+                .select()
+                .from(match)
+                .where(
+                  and(
+                    eq(match.book1Id, bookId),
+                    eq(match.book2Id, myBook.id),
+                    eq(match.status, "active"),
+                  ),
+                )
+                .limit(1);
+
+              if (existingMatch.length === 0) {
+                await db.insert(match).values({
+                  id: randomUUID(),
+                  user1Id: session.user.id, // User who liked
+                  user2Id: bookOwnerId, // Book owner
+                  book1Id: bookId, // Book that was liked (owned by user2)
+                  book2Id: myBook.id, // My book (that owner wants)
+                  status: "active",
+                });
+
+                revalidatePath("/", "layout");
+                return { success: true, matched: true };
+              }
+            }
+          }
         }
       }
     }
 
     revalidatePath("/", "layout");
-
-    return {
-      success: true,
-      match: false,
-    };
+    return { success: true, matched: false };
   } catch (error) {
-    console.error("Failed to swipe:", error);
-    return {
-      error: "Failed to record swipe",
-    };
+    console.error("Error swiping book:", error);
+    return { error: "Failed to swipe book" };
   }
 }

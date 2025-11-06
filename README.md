@@ -1,135 +1,218 @@
-# TinderBooks - Book Exchange Platform
+# 📚 BookSwap - Book Exchange Platform# Simple full-stack starter
 
-A modern web-based book management and exchange platform where users can organize their book collections and wishlist. Built with Next.js 15 following modern full-stack best practices.
 
-## Problem Statement
 
-Book lovers often have books they've finished reading and would like to trade, but lack an easy way to organize their collection and connect with potential trading partners. TinderBooks solves this by providing a centralized platform to manage books you own and books you're looking for.
+BookSwap is a Tinder-style book exchange platform that allows users to discover and trade physical books by swiping through available listings. Match with other book lovers based on what you have and what you want!Used deps:
 
-## Features
 
-- 📚 **Book Collection Management** - Add and organize books you own
-- 🎯 **Wishlist** - Keep track of books you want to read
-- � **Secure Authentication** - User accounts with better-auth
-- 📊 **Database Persistence** - All data stored in SQLite database
-- 🎨 **Modern UI** - Clean interface built with TailwindCSS and shadcn/ui
 
-## Tech Stack
+## 🎯 Features- Main framework: Next.js
 
-This project perfectly matches the recommended tech stack from the course:
+- DB: SQLite
 
-- **Meta-Framework:** Next.js 15.5.4
-- **Frontend Framework:** React 19.1.0
-- **Database ORM:** Drizzle ORM 0.44.6
-- **Database:** SQLite (via @libsql/client)
-- **Authentication:** better-auth 1.3.26
-- **Styling:** TailwindCSS 4
-- **Components:** shadcn/ui (radix-ui based)
-- **Additional:** TypeScript, Biome (linting/formatting)
+### Core MVP Features- ORM: Drizzle
 
-## Project Structure
+- **User Profiles** - Create your profile with bio, city, and favorite genres- Styling: Tailwind v4
 
-```
-src/
-├── actions/          # Server actions for data mutations
-├── app/             # Next.js app router pages
-│   ├── books/       # Main book management page
-│   ├── login/       # Login page
-│   ├── signup/      # Signup page
-│   └── api/auth/    # Auth API routes
-├── components/      # Reusable React components
-│   └── ui/          # shadcn/ui components
-├── db/              # Database schema and connection
-├── lib/             # Utility functions and helpers
-└── middleware.ts    # Auth middleware
-```
+- **Book Listings** - Manage "Books I Have" and "Books I Want"- Auth: better-auth
 
+- **Swipe Discovery** - Tinder-style interface to browse available books- Components: shadcn/ui (radix-ui based)
+
+- **Smart Matching** - Automatic matching when users want each other's books
+
+- **Messaging** - Chat with matches to coordinate exchanges
 
 ## Getting Started
 
+## 🛠️ Tech Stack
+
+### (0. Install pnpm)
+
+- **Framework:** Next.js 15 (App Router)
+
+- **Styling:** Tailwind CSS v4See [pnpm Installation Guide](https://pnpm.io/installation).
+
+- **Components:** shadcn/ui (Radix UI)
+
+- **Authentication:** better-auth
+
+- **Database:** Turso (SQLite) via drizzle-orm### 1. Install all dependencies 
+
+- **Package Manager:** pnpm
+
+```bash
+
+## 🚀 Getting Startedpnpm i
+
+```
+
 ### Prerequisites
 
-- Node.js 18+ installed
-- pnpm package manager ([Installation Guide](https://pnpm.io/installation))
+- Node.js 20+ You do this whenever new dependencies should get installed
 
-### Installation & Setup
+- pnpm
 
-**1. Install dependencies**
+### 2. Initialize the database
+
+### Installation
 
 ```bash
+
+1. Clone the repository:pnpm db:push
+
+```bash```
+
+git clone <repository-url>
+
+cd BookSwapThis command creates a (.gitignore'd) SQLite DB file in src/db/localdb.sqlite.
+
+```
+
+*You also use this command later to push the changes to the schema into the database!*
+
+2. Install dependencies:
+
+```bash### 3. Running the development server
+
 pnpm install
-```
 
-**2. Set up environment variables**
+``````bash
 
-Copy the example environment file and configure it:
-
-```bash
-cp .env.example .env.local
-```
-
-Edit `.env.local` and set:
-- `BETTER_AUTH_SECRET` - A random string (minimum 32 characters)
-- `DATABASE_URL` - Already configured for local SQLite (`file:./src/db/localdb.sqlite`)
-- `NEXT_PUBLIC_BETTER_AUTH_URL` - Set to `http://localhost:3000` for development
-
-**3. Initialize the database**
-
-```bash
-pnpm db:push
-```
-
-This creates the SQLite database with all required tables in `src/db/localdb.sqlite`.
-
-**4. Start the development server**
-
-```bash
 pnpm dev
+
+3. Set up environment variables:```
+
+Create a `.env.local` file with:
+
+```Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+
+NEXT_PUBLIC_BETTER_AUTH_URL=http://localhost:3000
+
+DATABASE_URL=<your-database-url>You can start editing the page by modifying `src/app/page.tsx`. The page auto-updates as you edit the file.
+
+DATABASE_AUTH_TOKEN=<your-auth-token>
+
+```This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+
+
+
+4. Push the database schema:### Dev agent compatibility
+
+```bash
+
+pnpm db:pushThis project defines a AGENTS.md file for context and rules for coding agents. Feel free to use it as additional info when asking other external chat tools as well!
+
 ```
 
-Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-## Usage
 
-1. **Sign Up** - Create a new account on the signup page
-2. **Login** - Access your account
-3. **Add Books** - Navigate to the Books page to add books you own or want
-4. **Manage Collection** - View, organize, and remove books from your lists
+5. Run the development server:### Recommended dependencies
 
-## Available Scripts
+```bash
 
-- `pnpm dev` - Start development server with Turbopack
+pnpm dev- If you build tables, it's highly recommended to store pagination, sorting and filtering state in search params. Use [nuqs](https://nuqs.dev/) for that. Use [TanStack Table](https://tanstack.com/table/latest) for base table components.
+
+```- If you really need client-side data fetching, use [SWR](https://swr.vercel.app/) or [TanStack Query](https://tanstack.com/query/v5/docs/framework/react/overview) instead of fetch calls in "useEffect" hooks.
+
+- If the manual validation and middleware boilerplate in your server actions get's too much, build your server actions with [next-safe-action](https://next-safe-action.dev/)
+
+Open [http://localhost:3000](http://localhost:3000) to see the app!
+
+
+
+## 📁 Project Structure### Recommended MCPs
+
+
+
+```If you use tooling that allows integration of MCP servers, I recommend the following ones:
+
+src/
+
+├── actions/          # Server actions for mutations- [Context7 by upstash](https://upstash.com/blog/context7-mcp)
+
+├── app/              # Next.js app router pages    - Returns up-to-date info about all kinds of dependencies
+
+│   ├── discover/     # Swipe interface
+
+│   ├── my-books/     # Book management## Learn More
+
+│   ├── matches/      # Matches and messaging
+
+│   └── profile/      # User profileTo learn more about Next.js, take a look at the following resources:
+
+├── components/       # Reusable UI components
+
+├── db/               # Database schema and connection- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
+
+└── lib/              # Utilities and helpers- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+
+```- [Next.js templates](https://vercel.com/templates/next.js) - need other functionality? Look here for other cool templates
+
+
+
+## 🎮 How to UseYou can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+
+
+1. **Sign Up** - Create an account with email
+2. **Complete Profile** - Add your bio, city, and favorite genres
+3. **Add Books** - List books you have and want
+4. **Discover** - Swipe through available books
+   - ❤️ Swipe right if interested
+   - ❌ Swipe left to pass
+5. **Match** - When both users want each other's books
+6. **Chat** - Message your matches to coordinate the exchange
+
+## 🗄️ Database Schema
+
+- **user** - User accounts (from better-auth)
+- **userProfile** - Extended profile (bio, city, genres)
+- **book** - Books users have
+- **wantedBook** - Books users want
+- **swipe** - Swipe actions (like/pass)
+- **match** - Successful matches between users
+- **message** - Chat messages
+
+## 📜 Scripts
+
+- `pnpm dev` - Start development server
 - `pnpm build` - Build for production
 - `pnpm start` - Start production server
-- `pnpm lint` - Run Biome linter
-- `pnpm format` - Format code with Biome
-- `pnpm db:push` - Push database schema changes
-- `pnpm db:studio` - Open Drizzle Studio for database management
+- `pnpm lint` - Run linter
+- `pnpm format` - Format code
+- `pnpm db:push` - Push schema changes
+- `pnpm db:studio` - Open Drizzle Studio
 
-## Future Enhancements
+## 🔒 Authentication
 
-- Tinder-style swipe interface for discovering books
-- Matching algorithm to connect users with similar interests
-- Messaging system for coordinating book trades
-- User profiles with reading preferences
-- Book condition ratings and photos
+BookSwap uses [better-auth](https://www.better-auth.com/) for authentication with:
+- Email/password authentication
+- Session management
+- Protected routes via middleware
 
-## Assignment Compliance
+## 🎨 Styling
 
-This project fulfills all mandatory requirements:
-- ✅ Solves a real problem (book collection management and trading)
-- ✅ Web-based frontend with user interaction
-- ✅ Server-side logic (authentication, data validation, business logic)
-- ✅ Database persistence (SQLite with Drizzle ORM)
-- ✅ Can be run in any development environment
-- ✅ Uses the exact recommended tech stack
+- Custom color scheme in `src/app/globals.css`
+- shadcn/ui components for consistent design
+- Responsive design for mobile and desktop
 
-## Learn More
+## 🚀 Future Enhancements
 
-To learn more about Next.js, take a look at the following resources:
+- Geolocation filters ("Show users near me")
+- Book scanning via ISBN
+- Rating/reputation system
+- In-app notifications
+- Group swaps / community events
+- Image upload for book photos
+- Advanced search and filters
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-- [Next.js templates](https://vercel.com/templates/next.js) - need other functionality? Look here for other cool templates
+## 📝 License
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+This project is built as an MVP demonstration.
+
+## 🤝 Contributing
+
+This is an MVP project. Feel free to fork and customize for your needs!
+
+---
+
+Built with ❤️ using Next.js and better-auth

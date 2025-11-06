@@ -1,126 +1,142 @@
-# TinderBooks - Setup Instructions for New Developers
+# 🚀 BookSwap - Quick Start Guide
 
-## Prerequisites
+## ✅ Your Environment is Ready!
 
-- Node.js 18+ installed
-- pnpm installed (`npm install -g pnpm`)
+Everything has been set up automatically. Here's what was created:
 
-## Setup Steps
+### 1. Environment Variables (`.env.local`)
+- ✅ Local SQLite database configured
+- ✅ Authentication secret generated
+- ✅ Base URL set to localhost:3000
 
-### 1. Clone the Repository
+### 2. Database
+- ✅ SQLite database file created at `src/db/localdb.sqlite`
+- ✅ All tables initialized (users, books, matches, messages, etc.)
 
+## 🎯 How to Start
+
+### Start the Development Server
 ```bash
-git clone <repository-url>
-cd TinderBooks
+pnpm dev
 ```
 
-### 2. Install Dependencies
+Then open your browser to: **http://localhost:3000**
+
+## 📖 Using BookSwap
+
+### First Time Setup:
+1. **Sign Up** - Create an account at http://localhost:3000/signup
+2. **Complete Profile** - Add your bio, city, and favorite book genres
+3. **Add Books** - List books you have and books you want
+4. **Start Swiping** - Go to Discover and swipe on books!
+
+### Main Pages:
+- **Home** (`/`) - Landing page (redirects to discover if logged in)
+- **Sign Up** (`/signup`) - Create a new account
+- **Login** (`/login`) - Sign in to existing account
+- **Discover** (`/discover`) - Swipe through available books
+- **My Books** (`/my-books`) - Manage your book listings
+- **Matches** (`/matches`) - View and chat with matches
+- **Profile** (`/profile`) - Edit your profile
+
+## 🗄️ Database Information
+
+Your local SQLite database includes these tables:
+- `user` - User accounts
+- `userProfile` - Extended profiles (bio, city, genres)
+- `book` - Books users have available
+- `wantedBook` - Books users want
+- `swipe` - Swipe history
+- `match` - Matched users
+- `message` - Chat messages
+
+### View Database
+To inspect your database:
+```bash
+pnpm db:studio
+```
+This opens Drizzle Studio in your browser to view/edit data.
+
+## 🔧 Useful Commands
 
 ```bash
-pnpm install
+# Start development server
+pnpm dev
+
+# Build for production
+pnpm build
+
+# Run production server
+pnpm start
+
+# View database
+pnpm db:studio
+
+# Update database schema (after changes)
+pnpm db:push
+
+# Format code
+pnpm format
+
+# Check code quality
+pnpm lint
 ```
 
-### 3. Setup Environment Variables
-
-Create a `.env.local` file in the root directory:
+## 📝 Environment Variables Explained
 
 ```bash
-cp .env.example .env.local
-```
-
-Then edit `.env.local` and add your configuration:
-
-```env
-# Database
+# Database location (local SQLite file)
 DATABASE_URL=file:./src/db/localdb.sqlite
-DATABASE_AUTH_TOKEN=
 
-# Auth Secret (generate a random string)
-BETTER_AUTH_SECRET=your-random-secret-here-minimum-32-characters
+# Auth secret (keep this secure in production!)
+BETTER_AUTH_SECRET=your-super-secret-key-change-this-in-production-minimum-32-chars
 
-# App URL
-BETTER_AUTH_URL=http://localhost:3000
+# Your app URL
+NEXT_PUBLIC_BETTER_AUTH_URL=http://localhost:3000
 ```
 
-**To generate a secure secret:**
+## 🎨 Features Available
 
+✅ User authentication (email/password)
+✅ User profiles with preferences
+✅ Book management (add/delete)
+✅ Wishlist system
+✅ Tinder-style swipe interface
+✅ Smart matching algorithm
+✅ Real-time messaging
+✅ Responsive design
+
+## 🐛 Troubleshooting
+
+### Port Already in Use
+If port 3000 is busy:
 ```bash
-# On Windows PowerShell:
--join ((48..57) + (65..90) + (97..122) | Get-Random -Count 32 | % {[char]$_})
-
-# On Mac/Linux:
-openssl rand -base64 32
+# Kill the process or use a different port
+pnpm dev -- -p 3001
 ```
 
-### 4. Setup Database
-
-Run the database migrations:
-
+### Database Issues
+If you need to reset the database:
 ```bash
+# Delete the database file
+Remove-Item src\db\localdb.sqlite
+
+# Recreate it
 pnpm db:push
 ```
 
-This will create the SQLite database file at `src/db/localdb.sqlite`.
-
-### 5. Run Development Server
-
+### Dependencies Issue
+If something doesn't work:
 ```bash
-pnpm dev
-```
-
-The app will be available at **http://localhost:3000**
-
-## Project Structure
-
-- `src/app/` - Next.js App Router pages
-  - `books/` - Book collection management
-  - `swipe/` - Tinder-style book discovery
-  - `matches/` - View matched users
-  - `messages/` - Chat with matches
-- `src/actions/` - Server actions for mutations
-- `src/lib/` - Database queries and utilities
-- `src/components/` - Reusable React components
-- `src/db/` - Database schema and connection
-
-## Troubleshooting
-
-### "Module not found" errors
-
-Run:
-```bash
-rm -rf .next
+# Reinstall dependencies
+Remove-Item -Recurse node_modules
 pnpm install
-pnpm dev
 ```
 
-### Database errors
+## 🎉 You're All Set!
 
-Make sure the database is initialized:
-```bash
-pnpm db:push
-```
+Just run `pnpm dev` and start building your book exchange community!
 
-### CSS not loading
+---
 
-The CSS is in `src/app/globals.css` and should be automatically included. If it's not loading:
-1. Check that the file exists
-2. Verify it's imported in `src/app/layout.tsx`
-3. Clear Next.js cache: `rm -rf .next`
-
-## Available Scripts
-
-- `pnpm dev` - Start development server
-- `pnpm build` - Build for production
-- `pnpm start` - Start production server
-- `pnpm lint` - Run linter
-- `pnpm db:push` - Push database schema changes
-- `pnpm db:studio` - Open Drizzle Studio (database GUI)
-
-## First Time Use
-
-1. Sign up for an account at `/signup`
-2. Add some books to your collection at `/books`
-3. Go to `/swipe` to discover books from other users
-4. When you like a book, select which of your books to offer
-5. If both users like each other's books, you get a match!
-6. Chat with matches at `/messages`
+Need help? Check the main README.md for more details.

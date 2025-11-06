@@ -1,69 +1,75 @@
 "use client";
 
-import * as React from "react";
-import { Book, Heart, MessageCircle, Library, User } from "lucide-react";
+import type * as React from "react";
+import {
+  IconBook,
+  IconHeart,
+  IconUser,
+  IconBooks,
+  IconCompass,
+} from "@tabler/icons-react";
 
 import { NavMain } from "@/components/nav-main";
 import { NavUser } from "@/components/nav-user";
 import {
-	Sidebar,
-	SidebarContent,
-	SidebarFooter,
-	SidebarHeader,
-	SidebarMenu,
-	SidebarMenuButton,
-	SidebarMenuItem,
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
 } from "@/components/ui/sidebar";
 
 const data = {
-	navMain: [
-		{
-			title: "My Books",
-			url: "/books",
-			icon: Library,
-		},
-		{
-			title: "Discover",
-			url: "/swipe",
-			icon: Heart,
-		},
-		{
-			title: "Matches",
-			url: "/matches",
-			icon: Book,
-		},
-		{
-			title: "Messages",
-			url: "/messages",
-			icon: MessageCircle,
-		},
-	],
+  navMain: [
+    {
+      title: "Discover",
+      url: "/discover",
+      icon: IconCompass,
+    },
+    {
+      title: "My Books",
+      url: "/my-books",
+      icon: IconBooks,
+    },
+    {
+      title: "Matches",
+      url: "/matches",
+      icon: IconHeart,
+    },
+    {
+      title: "Profile",
+      url: "/profile",
+      icon: IconUser,
+    },
+  ],
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-	return (
-		<Sidebar collapsible="offcanvas" {...props}>
-			<SidebarHeader>
-				<SidebarMenu>
-					<SidebarMenuItem>
-						<SidebarMenuButton
-							asChild
-							className="data-[slot=sidebar-menu-button]:!p-1.5"
-						>
-							<a href="/">
-								<Book className="!size-5" />
-								<span className="text-base font-semibold">TinderBooks</span>
-							</a>
-						</SidebarMenuButton>
-					</SidebarMenuItem>
-				</SidebarMenu>
-			</SidebarHeader>
-			<SidebarContent>
-				<NavMain items={data.navMain} />
-			</SidebarContent>
-			<SidebarFooter>
-				<NavUser />
-			</SidebarFooter>
-		</Sidebar>
-	);
+  return (
+    <Sidebar collapsible="offcanvas" {...props}>
+      <SidebarHeader>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              asChild
+              className="data-[slot=sidebar-menu-button]:!p-1.5"
+            >
+              <a href="/">
+                <IconBook className="!size-5" />
+                <span className="text-base font-semibold">BookSwap</span>
+              </a>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarHeader>
+      <SidebarContent>
+        <NavMain items={data.navMain} />
+      </SidebarContent>
+      <SidebarFooter>
+        <NavUser />
+      </SidebarFooter>
+    </Sidebar>
+  );
 }
