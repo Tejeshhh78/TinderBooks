@@ -29,13 +29,19 @@ export function NavMain({
       if (!active) return;
       const latest = typeof data?.latest === "number" ? data.latest : 0;
       const clearedAt = Number(localStorage.getItem("notifClearedAt") || 0);
-      const has = Boolean((data?.hasMatch || data?.hasMessage) && latest > clearedAt);
+      const has = Boolean(
+        (data?.hasMatch || data?.hasMessage) && latest > clearedAt,
+      );
       setHasNotif(has);
     };
-    fetch("/api/notifications").then((r) => r.json()).then(apply)
+    fetch("/api/notifications")
+      .then((r) => r.json())
+      .then(apply)
       .catch(() => {});
     const id = setInterval(() => {
-      fetch("/api/notifications").then((r) => r.json()).then(apply)
+      fetch("/api/notifications")
+        .then((r) => r.json())
+        .then(apply)
         .catch(() => {});
     }, 30000);
     return () => {
@@ -58,7 +64,10 @@ export function NavMain({
                     className="relative"
                     onClick={() => {
                       if (isMatches) {
-                        localStorage.setItem("notifClearedAt", String(Date.now()));
+                        localStorage.setItem(
+                          "notifClearedAt",
+                          String(Date.now()),
+                        );
                         setHasNotif(false);
                       }
                     }}

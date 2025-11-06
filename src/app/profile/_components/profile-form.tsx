@@ -35,7 +35,10 @@ interface ProfileFormProps {
   hasImage?: boolean;
 }
 
-export function ProfileForm({ existingProfile, hasImage = false }: ProfileFormProps) {
+export function ProfileForm({
+  existingProfile,
+  hasImage = false,
+}: ProfileFormProps) {
   const [selectedGenres, setSelectedGenres] = useState<string[]>(
     existingProfile?.genres ? JSON.parse(existingProfile.genres) : [],
   );
@@ -84,7 +87,9 @@ export function ProfileForm({ existingProfile, hasImage = false }: ProfileFormPr
           onChange={(e) => setImageFileName(e.target.files?.[0]?.name ?? "")}
         />
         <p className="text-xs text-muted-foreground mt-1">
-          {imageFileName ? `Selected: ${imageFileName}` : "Optional. Upload a profile photo (PNG, JPG, WEBP)."}
+          {imageFileName
+            ? `Selected: ${imageFileName}`
+            : "Optional. Upload a profile photo (PNG, JPG, WEBP)."}
         </p>
         {hasImage && (
           <div className="mt-2 flex items-center gap-2">

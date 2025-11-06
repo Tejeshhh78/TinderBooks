@@ -12,14 +12,19 @@ export function ThemeToggle({ className }: { className?: string }) {
   useEffect(() => {
     // Initialize from cookie/localStorage or prefers-color-scheme, and sync with current DOM class
     try {
-      const cookieMatch = document.cookie.match(/(?:^|; )tb-theme=(dark|light)/);
-      const cookieTheme = (cookieMatch?.[1] as "dark" | "light" | undefined) ?? undefined;
-      const stored = (typeof window !== "undefined" && localStorage.getItem(KEY)) as
-        | "light"
-        | "dark"
-        | null;
+      const cookieMatch = document.cookie.match(
+        /(?:^|; )tb-theme=(dark|light)/,
+      );
+      const cookieTheme =
+        (cookieMatch?.[1] as "dark" | "light" | undefined) ?? undefined;
+      const stored = (typeof window !== "undefined" &&
+        localStorage.getItem(KEY)) as "light" | "dark" | null;
       const initial =
-        cookieTheme ?? stored ?? (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+        cookieTheme ??
+        stored ??
+        (window.matchMedia("(prefers-color-scheme: dark)").matches
+          ? "dark"
+          : "light");
       setTheme(initial);
       document.documentElement.classList.toggle("dark", initial === "dark");
     } catch {}
@@ -39,8 +44,18 @@ export function ThemeToggle({ className }: { className?: string }) {
   };
 
   return (
-    <Button variant="ghost" size="icon" onClick={toggle} className={className} aria-label="Toggle theme">
-      {theme === "dark" ? <Sun className="size-4" /> : <Moon className="size-4" />}
+    <Button
+      variant="ghost"
+      size="icon"
+      onClick={toggle}
+      className={className}
+      aria-label="Toggle theme"
+    >
+      {theme === "dark" ? (
+        <Sun className="size-4" />
+      ) : (
+        <Moon className="size-4" />
+      )}
     </Button>
   );
 }

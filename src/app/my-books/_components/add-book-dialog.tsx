@@ -175,10 +175,14 @@ export function AddBookDialog() {
               name="imageFile"
               type="file"
               accept="image/png,image/jpeg,image/webp"
-              onChange={(e) => setImageFileName(e.target.files?.[0]?.name ?? "")}
+              onChange={(e) =>
+                setImageFileName(e.target.files?.[0]?.name ?? "")
+              }
             />
             <p className="text-xs text-muted-foreground mt-1">
-              {imageFileName ? `Selected: ${imageFileName}` : "Upload a cover image (PNG, JPG, WEBP)."}
+              {imageFileName
+                ? `Selected: ${imageFileName}`
+                : "Upload a cover image (PNG, JPG, WEBP)."}
             </p>
           </div>
 

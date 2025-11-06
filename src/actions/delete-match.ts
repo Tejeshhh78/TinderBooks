@@ -30,7 +30,10 @@ export async function deleteMatch(formData: FormData) {
       .where(
         and(
           eq(match.id, matchId),
-          or(eq(match.user1Id, session.user.id), eq(match.user2Id, session.user.id)),
+          or(
+            eq(match.user1Id, session.user.id),
+            eq(match.user2Id, session.user.id),
+          ),
         ),
       )
       .limit(1);
@@ -39,14 +42,20 @@ export async function deleteMatch(formData: FormData) {
       return { error: "Match not found" };
     }
 
-  // Soft-delete by setting status to cancelled and free up books (set available)
-  await db
-    .update(match)
-    .set({ status: "cancelled", deletedForUserId: session.user.id })
-    .where(eq(match.id, matchId));
-  const m = existing[0];
-  await db.update(book).set({ isAvailable: true }).where(eq(book.id, m.book1Id));
-  await db.update(book).set({ isAvailable: true }).where(eq(book.id, m.book2Id));
+    // Soft-delete by setting status to cancelled and free up books (set available)
+    await db
+      .update(match)
+      .set({ status: "cancelled", deletedForUserId: session.user.id })
+      .where(eq(match.id, matchId));
+    const m = existing[0];
+    await db
+      .update(book)
+      .set({ isAvailable: true })
+      .where(eq(book.id, m.book1Id));
+    await db
+      .update(book)
+      .set({ isAvailable: true })
+      .where(eq(book.id, m.book2Id));
 
     revalidatePath("/", "layout");
     return { success: true };

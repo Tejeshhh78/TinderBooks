@@ -17,9 +17,15 @@ export async function GET() {
     .from(match)
     .where(
       and(
-        or(eq(match.user1Id, session.user.id), eq(match.user2Id, session.user.id)),
+        or(
+          eq(match.user1Id, session.user.id),
+          eq(match.user2Id, session.user.id),
+        ),
         eq(match.status, "pending"),
-        or(isNull(match.deletedForUserId), ne(match.deletedForUserId, session.user.id)),
+        or(
+          isNull(match.deletedForUserId),
+          ne(match.deletedForUserId, session.user.id),
+        ),
       ),
     )
     .orderBy(desc(match.createdAt))
@@ -32,9 +38,15 @@ export async function GET() {
     .from(match)
     .where(
       and(
-        or(eq(match.user1Id, session.user.id), eq(match.user2Id, session.user.id)),
+        or(
+          eq(match.user1Id, session.user.id),
+          eq(match.user2Id, session.user.id),
+        ),
         ne(match.status, "cancelled"),
-        or(isNull(match.deletedForUserId), ne(match.deletedForUserId, session.user.id)),
+        or(
+          isNull(match.deletedForUserId),
+          ne(match.deletedForUserId, session.user.id),
+        ),
       ),
     );
   const matchIds = myMatches.map((m) => m.id);
@@ -44,7 +56,12 @@ export async function GET() {
     const incoming = await db
       .select({ id: message.id, createdAt: message.createdAt })
       .from(message)
-      .where(and(inArray(message.matchId, matchIds), ne(message.senderId, session.user.id)))
+      .where(
+        and(
+          inArray(message.matchId, matchIds),
+          ne(message.senderId, session.user.id),
+        ),
+      )
       .orderBy(desc(message.createdAt))
       .limit(1);
     if (incoming.length > 0) {
@@ -53,7 +70,12 @@ export async function GET() {
     }
   }
 
-  const latestPendingMs = pending.length > 0 ? +new Date(pending[0].createdAt) : undefined;
+  const latestPendingMs =
+    pending.length > 0 ? +new Date(pending[0].createdAt) : undefined;
   const latest = Math.max(latestPendingMs ?? 0, latestMsgMs ?? 0) || null;
-  return NextResponse.json({ hasMatch: pending.length > 0, hasMessage, latest });
+  return NextResponse.json({
+    hasMatch: pending.length > 0,
+    hasMessage,
+    latest,
+  });
 }

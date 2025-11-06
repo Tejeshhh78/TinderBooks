@@ -22,7 +22,10 @@ export default async function DiscoverPage({
 
   const { genre, genres } = await searchParams;
   const selectedGenres = genres
-    ? genres.split(",").map((g) => g.trim()).filter(Boolean)
+    ? genres
+        .split(",")
+        .map((g) => g.trim())
+        .filter(Boolean)
     : genre
       ? [genre]
       : [];
@@ -67,8 +70,8 @@ export default async function DiscoverPage({
     .leftJoin(userProfile, eq(user.id, userProfile.userId))
     .where(
       and(
-  eq(book.isAvailable, true),
-  or(isNull(book.isDeleted), eq(book.isDeleted, false)),
+        eq(book.isAvailable, true),
+        or(isNull(book.isDeleted), eq(book.isDeleted, false)),
         ne(book.userId, session.user.id),
         selectedGenres.length > 0
           ? inArray(book.genre, selectedGenres)
@@ -150,7 +153,7 @@ export default async function DiscoverPage({
   return (
     <div className="container mx-auto max-w-2xl py-8 px-4">
       <h1 className="text-3xl font-bold mb-6 text-center">Discover Books</h1>
-  <GenreFilter selectedGenres={selectedGenres} />
+      <GenreFilter selectedGenres={selectedGenres} />
       <SwipeInterface books={prioritizedBooks} />
     </div>
   );

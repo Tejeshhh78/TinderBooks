@@ -61,7 +61,9 @@ export async function updateBook(formData: FormData) {
     await db
       .update(book)
       .set(updateData)
-      .where(and(eq(book.id, parsed.data.bookId), eq(book.userId, session.user.id)));
+      .where(
+        and(eq(book.id, parsed.data.bookId), eq(book.userId, session.user.id)),
+      );
 
     revalidatePath("/", "layout");
     return { success: true };

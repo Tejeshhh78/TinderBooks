@@ -31,7 +31,11 @@ const GENRES = [
   "Children's",
 ];
 
-export function GenreFilter({ selectedGenres = [] }: { selectedGenres?: string[] }) {
+export function GenreFilter({
+  selectedGenres = [],
+}: {
+  selectedGenres?: string[];
+}) {
   const pathname = usePathname();
   const formRef = useRef<HTMLFormElement | null>(null);
   const [open, setOpen] = useState(false);
@@ -48,7 +52,7 @@ export function GenreFilter({ selectedGenres = [] }: { selectedGenres?: string[]
   };
 
   return (
-  <form
+    <form
       ref={formRef}
       method="GET"
       action={pathname}

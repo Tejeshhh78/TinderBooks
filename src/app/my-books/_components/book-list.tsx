@@ -34,7 +34,11 @@ interface BookListProps {
   bookStatuses?: Record<string, "pending" | "active">;
 }
 
-export function BookList({ books, inMatchingBookIds = [], bookStatuses = {} }: BookListProps) {
+export function BookList({
+  books,
+  inMatchingBookIds = [],
+  bookStatuses = {},
+}: BookListProps) {
   const handleDelete = async (bookId: string) => {
     if (!confirm("Are you sure you want to delete this book?")) return;
 
@@ -78,7 +82,11 @@ export function BookList({ books, inMatchingBookIds = [], bookStatuses = {} }: B
                 </CardDescription>
               </div>
               {bookStatuses[book.id] ? (
-                <Badge variant={bookStatuses[book.id] === "active" ? "default" : "secondary"}>
+                <Badge
+                  variant={
+                    bookStatuses[book.id] === "active" ? "default" : "secondary"
+                  }
+                >
                   {bookStatuses[book.id] === "active" ? "Matched" : "Pending"}
                 </Badge>
               ) : inMatchingBookIds.includes(book.id) ? (
@@ -112,13 +120,16 @@ export function BookList({ books, inMatchingBookIds = [], bookStatuses = {} }: B
             </div>
           </CardContent>
           <CardFooter>
-            {bookStatuses[book.id] || inMatchingBookIds.includes(book.id) || !book.isAvailable ? (
+            {bookStatuses[book.id] ||
+            inMatchingBookIds.includes(book.id) ||
+            !book.isAvailable ? (
               <div className="text-sm text-muted-foreground w-full text-center">
                 {bookStatuses[book.id] === "active"
                   ? "Locked (matched)"
-                  : bookStatuses[book.id] === "pending" || inMatchingBookIds.includes(book.id)
-                  ? "Locked while in matching"
-                  : "Locked while in a trade"}
+                  : bookStatuses[book.id] === "pending" ||
+                      inMatchingBookIds.includes(book.id)
+                    ? "Locked while in matching"
+                    : "Locked while in a trade"}
               </div>
             ) : (
               <div className="flex gap-2 w-full">

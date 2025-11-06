@@ -36,7 +36,10 @@ export default async function MatchDetailPage({ params }: PageProps) {
     .where(
       and(
         eq(match.id, matchId),
-        or(eq(match.user1Id, session.user.id), eq(match.user2Id, session.user.id)),
+        or(
+          eq(match.user1Id, session.user.id),
+          eq(match.user2Id, session.user.id),
+        ),
         // Show even if cancelled, but if the current user deleted it, redirect back
       ),
     )
@@ -104,24 +107,28 @@ export default async function MatchDetailPage({ params }: PageProps) {
             </form>
           )}
           {pending && !cancelled && !myBook.isAvailable && (
-            <span className="text-sm text-muted-foreground">Waiting for confirmation…</span>
+            <span className="text-sm text-muted-foreground">
+              Waiting for confirmation…
+            </span>
           )}
           {cancelled && (
-            <span className="text-sm text-muted-foreground">This match was dissolved.</span>
+            <span className="text-sm text-muted-foreground">
+              This match was dissolved.
+            </span>
           )}
-        <form
-          action={async (formData) => {
-            "use server";
-            await deleteMatch(formData);
-            redirect("/matches");
-          }}
-        >
-          <input type="hidden" name="matchId" value={matchId} />
-          <Button variant="destructive" size="sm">
-            <Trash2 className="size-4 mr-2" />
-            Delete match
-          </Button>
-        </form>
+          <form
+            action={async (formData) => {
+              "use server";
+              await deleteMatch(formData);
+              redirect("/matches");
+            }}
+          >
+            <input type="hidden" name="matchId" value={matchId} />
+            <Button variant="destructive" size="sm">
+              <Trash2 className="size-4 mr-2" />
+              Delete match
+            </Button>
+          </form>
         </div>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">

@@ -35,9 +35,15 @@ export default async function MatchesPage() {
     .from(match)
     .where(
       and(
-        or(eq(match.user1Id, session.user.id), eq(match.user2Id, session.user.id)),
+        or(
+          eq(match.user1Id, session.user.id),
+          eq(match.user2Id, session.user.id),
+        ),
         // Hide only if this match was deleted by me
-  or(isNull(match.deletedForUserId), ne(match.deletedForUserId, session.user.id)),
+        or(
+          isNull(match.deletedForUserId),
+          ne(match.deletedForUserId, session.user.id),
+        ),
       ),
     )
     .orderBy(desc(match.createdAt));
@@ -45,11 +51,11 @@ export default async function MatchesPage() {
   // Enrich matches with proper data structure
   const enrichedMatches = await Promise.all(
     matchesRaw.map(async (m) => {
-  const isUser1 = m.user1Id === session.user.id;
-  const otherUserId = isUser1 ? m.user2Id : m.user1Id;
-  // By convention: user1 -> book1, user2 -> book2
-  const myBookId = isUser1 ? m.book1Id : m.book2Id;
-  const theirBookId = isUser1 ? m.book2Id : m.book1Id;
+      const isUser1 = m.user1Id === session.user.id;
+      const otherUserId = isUser1 ? m.user2Id : m.user1Id;
+      // By convention: user1 -> book1, user2 -> book2
+      const myBookId = isUser1 ? m.book1Id : m.book2Id;
+      const theirBookId = isUser1 ? m.book2Id : m.book1Id;
 
       if (!myBookId || !theirBookId) {
         return null;
@@ -133,7 +139,9 @@ export default async function MatchesPage() {
                         </form>
                       )}
                       {m.status === "pending" && !m.myBook.isAvailable && (
-                        <Badge variant="secondary">Waiting for confirmation</Badge>
+                        <Badge variant="secondary">
+                          Waiting for confirmation
+                        </Badge>
                       )}
                       {m.status === "active" && (
                         <Badge variant="default">Matched</Badge>

@@ -102,11 +102,17 @@ export function NavUser() {
                 <IconUserCircle />
                 Account
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => toast.info("Billing is not implemented yet.") }>
+              <DropdownMenuItem
+                onClick={() => toast.info("Billing is not implemented yet.")}
+              >
                 <IconCreditCard />
                 Billing
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => toast.info("Notifications are not implemented yet.") }>
+              <DropdownMenuItem
+                onClick={() =>
+                  toast.info("Notifications are not implemented yet.")
+                }
+              >
                 <IconNotification />
                 Notifications
               </DropdownMenuItem>

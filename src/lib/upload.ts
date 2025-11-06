@@ -5,9 +5,14 @@ import { join } from "node:path";
 
 const ACCEPTED_MIME = new Set(["image/jpeg", "image/png", "image/webp"]);
 
-export async function saveUploadedFile(file: File, subdir: "profile" | "books") {
+export async function saveUploadedFile(
+  file: File,
+  subdir: "profile" | "books",
+) {
   if (!ACCEPTED_MIME.has(file.type)) {
-    throw new Error("Unsupported file type. Please upload a JPEG, PNG or WEBP image.");
+    throw new Error(
+      "Unsupported file type. Please upload a JPEG, PNG or WEBP image.",
+    );
   }
 
   const uploadsDir = join(process.cwd(), "public", "uploads", subdir);

@@ -30,7 +30,10 @@ export async function acceptMatch(formData: FormData) {
       .where(
         and(
           eq(match.id, matchId),
-          or(eq(match.user1Id, session.user.id), eq(match.user2Id, session.user.id)),
+          or(
+            eq(match.user1Id, session.user.id),
+            eq(match.user2Id, session.user.id),
+          ),
         ),
       )
       .limit(1);
@@ -49,7 +52,11 @@ export async function acceptMatch(formData: FormData) {
     // Determine the current user's own book by ownership to tolerate legacy
     // matches that might have used a different book ordering.
     const bothBooks = await db
-      .select({ id: book.id, userId: book.userId, isAvailable: book.isAvailable })
+      .select({
+        id: book.id,
+        userId: book.userId,
+        isAvailable: book.isAvailable,
+      })
       .from(book)
       .where(or(eq(book.id, m.book1Id), eq(book.id, m.book2Id)));
 
@@ -62,7 +69,10 @@ export async function acceptMatch(formData: FormData) {
     const theirBookId = theirBook.id;
 
     // Reserve my book (set unavailable)
-    await db.update(book).set({ isAvailable: false }).where(eq(book.id, myBookId));
+    await db
+      .update(book)
+      .set({ isAvailable: false })
+      .where(eq(book.id, myBookId));
 
     // Check if the other side has also accepted (their book unavailable)
     const theirBooks = await db
@@ -75,11 +85,17 @@ export async function acceptMatch(formData: FormData) {
 
     if (otherAccepted) {
       // Both accepted -> activate match
-      await db.update(match).set({ status: "active" }).where(eq(match.id, m.id));
+      await db
+        .update(match)
+        .set({ status: "active" })
+        .where(eq(match.id, m.id));
     } else {
       // Ensure status is at least pending
       if (m.status !== "pending") {
-        await db.update(match).set({ status: "pending" }).where(eq(match.id, m.id));
+        await db
+          .update(match)
+          .set({ status: "pending" })
+          .where(eq(match.id, m.id));
       }
     }
 

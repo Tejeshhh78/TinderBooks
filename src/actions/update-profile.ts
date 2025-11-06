@@ -33,15 +33,16 @@ export async function updateProfile(formData: FormData) {
   const rawImageUrl = formData.get("imageUrl");
 
   const data = {
-    bio: typeof rawBio === "string" && rawBio.trim() !== "" ? rawBio : undefined,
-    city: typeof rawCity === "string" && rawCity.trim() !== "" ? rawCity : undefined,
+    bio:
+      typeof rawBio === "string" && rawBio.trim() !== "" ? rawBio : undefined,
+    city:
+      typeof rawCity === "string" && rawCity.trim() !== ""
+        ? rawCity
+        : undefined,
     // Genres is required: ensure it's a stringified array
     genres: typeof rawGenres === "string" ? rawGenres : "[]",
     // Optional: when not provided, keep undefined; empty string means clear image
-    imageUrl:
-      typeof rawImageUrl === "string"
-        ? rawImageUrl
-        : undefined,
+    imageUrl: typeof rawImageUrl === "string" ? rawImageUrl : undefined,
   };
 
   const parsed = updateProfileSchema.safeParse(data);
@@ -82,9 +83,15 @@ export async function updateProfile(formData: FormData) {
     const imageFile = formData.get("imageFile");
     if (imageFile instanceof File && imageFile.size > 0) {
       const publicPath = await saveUploadedFile(imageFile, "profile");
-      await db.update(user).set({ image: publicPath }).where(eq(user.id, session.user.id));
+      await db
+        .update(user)
+        .set({ image: publicPath })
+        .where(eq(user.id, session.user.id));
     } else if (parsed.data.imageUrl !== undefined) {
-      await db.update(user).set({ image: parsed.data.imageUrl || null }).where(eq(user.id, session.user.id));
+      await db
+        .update(user)
+        .set({ image: parsed.data.imageUrl || null })
+        .where(eq(user.id, session.user.id));
     }
 
     revalidatePath("/", "layout");

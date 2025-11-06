@@ -30,7 +30,11 @@ export async function swipeBook(bookId: string, action: "like" | "pass") {
     // On like: try to create a match based on mutual likes
     if (action === "like") {
       // Find the owner of the liked book
-      const likedBook = await db.select().from(book).where(eq(book.id, bookId)).limit(1);
+      const likedBook = await db
+        .select()
+        .from(book)
+        .where(eq(book.id, bookId))
+        .limit(1);
       if (likedBook.length === 0) {
         return { success: true, matched: false };
       }

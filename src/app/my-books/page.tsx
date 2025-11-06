@@ -34,20 +34,25 @@ export default async function MyBooksPage() {
   let bookStatuses: Record<string, "pending" | "active"> = {};
   if (myBookIds.length > 0) {
     const relatedMatches = await db
-      .select({ book1Id: match.book1Id, book2Id: match.book2Id, status: match.status })
+      .select({
+        book1Id: match.book1Id,
+        book2Id: match.book2Id,
+        status: match.status,
+      })
       .from(match)
       .where(
-        or(inArray(match.book1Id, myBookIds), inArray(match.book2Id, myBookIds))
+        or(
+          inArray(match.book1Id, myBookIds),
+          inArray(match.book2Id, myBookIds),
+        ),
       );
 
     for (const m of relatedMatches) {
       if (m.status === "pending" || m.status === "active") {
-        if (myBookIds.includes(m.book1Id)) bookStatuses[m.book1Id] = m.status as
-          | "pending"
-          | "active";
-        if (myBookIds.includes(m.book2Id)) bookStatuses[m.book2Id] = m.status as
-          | "pending"
-          | "active";
+        if (myBookIds.includes(m.book1Id))
+          bookStatuses[m.book1Id] = m.status as "pending" | "active";
+        if (myBookIds.includes(m.book2Id))
+          bookStatuses[m.book2Id] = m.status as "pending" | "active";
       }
     }
   }
@@ -59,7 +64,8 @@ export default async function MyBooksPage() {
       <div className="mt-6">
         <div className="flex justify-between items-center mb-6">
           <p className="text-muted-foreground">
-            {myBooks.length} {myBooks.length === 1 ? "book" : "books"} available for trade
+            {myBooks.length} {myBooks.length === 1 ? "book" : "books"} available
+            for trade
           </p>
           <AddBookDialog />
         </div>

@@ -43,7 +43,11 @@ export default async function RootLayout({
   const isDark = cookieTheme === "dark";
 
   return (
-    <html lang="en" suppressHydrationWarning className={isDark ? "dark" : undefined}>
+    <html
+      lang="en"
+      suppressHydrationWarning
+      className={isDark ? "dark" : undefined}
+    >
       <head>
         {/* No-flash theme script: ensures correct theme before hydration */}
         {/* biome-ignore lint/security/noDangerouslySetInnerHtml: Theme no-flash init before hydration */}

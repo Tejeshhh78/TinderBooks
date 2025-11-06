@@ -52,11 +52,15 @@ export default async function ProfilePage() {
           </div>
         </div>
         <p className="text-xs text-muted-foreground">
-          Note: When you match with someone, they can see your name, city, bio, and favorite genres.
+          Note: When you match with someone, they can see your name, city, bio,
+          and favorite genres.
         </p>
       </div>
 
-      <ProfileForm existingProfile={existingProfile} hasImage={Boolean(session.user.image)} />
+      <ProfileForm
+        existingProfile={existingProfile}
+        hasImage={Boolean(session.user.image)}
+      />
     </div>
   );
 }

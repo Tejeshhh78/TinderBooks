@@ -5,8 +5,12 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export function safeImageSrc(url: string | null | undefined, kind: "book" | "avatar" = "book") {
-  const placeholder = kind === "avatar" ? "/placeholder-avatar.svg" : "/placeholder-book.svg";
+export function safeImageSrc(
+  url: string | null | undefined,
+  kind: "book" | "avatar" = "book",
+) {
+  const placeholder =
+    kind === "avatar" ? "/placeholder-avatar.svg" : "/placeholder-book.svg";
   if (!url) return placeholder;
   // Allow only public assets and our uploaded files
   if (url.startsWith("/")) return url; // /uploads/... or other public assets

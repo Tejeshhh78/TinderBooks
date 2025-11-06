@@ -12,7 +12,13 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { toast } from "sonner";
 import { updateBook } from "@/actions/update-book";
 import { Pencil } from "lucide-react";
@@ -102,7 +108,12 @@ export function EditBookDialog({ book }: EditBookDialogProps) {
           </div>
           <div>
             <Label htmlFor="author">Author *</Label>
-            <Input id="author" name="author" defaultValue={book.author} required />
+            <Input
+              id="author"
+              name="author"
+              defaultValue={book.author}
+              required
+            />
           </div>
           <div>
             <Label htmlFor="genre">Genre *</Label>
@@ -142,10 +153,14 @@ export function EditBookDialog({ book }: EditBookDialogProps) {
               type="file"
               accept="image/png,image/jpeg,image/webp"
               ref={fileRef}
-              onChange={(e) => setImageFileName(e.target.files?.[0]?.name ?? "")}
+              onChange={(e) =>
+                setImageFileName(e.target.files?.[0]?.name ?? "")
+              }
             />
             <p className="text-xs text-muted-foreground mt-1">
-              {imageFileName ? `Selected: ${imageFileName}` : "Upload to replace the cover image."}
+              {imageFileName
+                ? `Selected: ${imageFileName}`
+                : "Upload to replace the cover image."}
             </p>
             {book.imageUrl && (
               <div className="mt-2 flex items-center gap-2">
