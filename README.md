@@ -1,218 +1,311 @@
-# 📚 BookSwap - Book Exchange Platform# Simple full-stack starter
+# 📚 TinderBooks - Book Exchange Platform
 
+> Swipe, Match, and Exchange Books with Fellow Readers
 
+TinderBooks is a modern book exchange platform that combines social discovery with book trading. Swipe through available books, match with other readers, and coordinate book swaps - all in a beautifully designed interface.
 
-BookSwap is a Tinder-style book exchange platform that allows users to discover and trade physical books by swiping through available listings. Match with other book lovers based on what you have and what you want!Used deps:
+[![Next.js](https://img.shields.io/badge/Next.js-15-black)](https://nextjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5-blue)](https://www.typescriptlang.org/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind-4-38bdf8)](https://tailwindcss.com/)
 
+## ✨ Features
 
+### 📖 Book Management
+- **Dual Collections** - Manage "Books I Have" and "Books I Want"
+- **Rich Metadata** - Add titles, authors, genres, conditions, and descriptions
+- **Easy Organization** - Tabbed interface for quick access
 
-## 🎯 Features- Main framework: Next.js
+### 💫 Discovery & Matching
+- **Tinder-Style Swipe** - Intuitive card interface for book discovery
+- **Smart Matching** - Automatic matches when mutual interest is detected
+- **Real-time Updates** - See new books as they're added
 
-- DB: SQLite
+### 💬 Communication
+- **In-App Messaging** - Chat with matches to coordinate exchanges
+- **Match History** - Keep track of all your book swap conversations
 
-### Core MVP Features- ORM: Drizzle
+### 👤 User Profiles
+- **Personalization** - Add bio, location, and favorite genres
+- **Reading Preferences** - Let others know your reading interests
 
-- **User Profiles** - Create your profile with bio, city, and favorite genres- Styling: Tailwind v4
-
-- **Book Listings** - Manage "Books I Have" and "Books I Want"- Auth: better-auth
-
-- **Swipe Discovery** - Tinder-style interface to browse available books- Components: shadcn/ui (radix-ui based)
-
-- **Smart Matching** - Automatic matching when users want each other's books
-
-- **Messaging** - Chat with matches to coordinate exchanges
-
-## Getting Started
+### � Dashboard
+- **Analytics** - Track your book collection and swap activity
+- **Interactive Charts** - Visualize your reading habits
 
 ## 🛠️ Tech Stack
 
-### (0. Install pnpm)
+- **Framework:** [Next.js 15](https://nextjs.org/) with App Router
+- **Language:** [TypeScript 5](https://www.typescriptlang.org/)
+- **Styling:** [Tailwind CSS v4](https://tailwindcss.com/)
+- **Components:** [shadcn/ui](https://ui.shadcn.com/) (Radix UI)
+- **Authentication:** [better-auth](https://www.better-auth.com/)
+- **Database:** SQLite with [Drizzle ORM](https://orm.drizzle.team/)
+- **Icons:** [Lucide React](https://lucide.dev/)
+- **Package Manager:** npm/pnpm
 
-- **Framework:** Next.js 15 (App Router)
-
-- **Styling:** Tailwind CSS v4See [pnpm Installation Guide](https://pnpm.io/installation).
-
-- **Components:** shadcn/ui (Radix UI)
-
-- **Authentication:** better-auth
-
-- **Database:** Turso (SQLite) via drizzle-orm### 1. Install all dependencies 
-
-- **Package Manager:** pnpm
-
-```bash
-
-## 🚀 Getting Startedpnpm i
-
-```
+## 🚀 Getting Started
 
 ### Prerequisites
 
-- Node.js 20+ You do this whenever new dependencies should get installed
-
-- pnpm
-
-### 2. Initialize the database
+- Node.js 20 or higher
+- npm or pnpm installed
 
 ### Installation
 
+1. **Clone the repository:**
 ```bash
-
-1. Clone the repository:pnpm db:push
-
-```bash```
-
-git clone <repository-url>
-
-cd BookSwapThis command creates a (.gitignore'd) SQLite DB file in src/db/localdb.sqlite.
-
+git clone https://github.com/Tejeshhh78/TinderBooks.git
+cd TinderBooks
 ```
 
-*You also use this command later to push the changes to the schema into the database!*
-
-2. Install dependencies:
-
-```bash### 3. Running the development server
-
+2. **Install dependencies:**
+```bash
+npm install
+# or
 pnpm install
+```
 
-``````bash
+3. **Set up environment variables:**
 
-pnpm dev
+Copy `.env.example` to `.env.local`:
+```bash
+cp .env.example .env.local
+```
 
-3. Set up environment variables:```
-
-Create a `.env.local` file with:
-
-```Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
+Update the following variables:
+```env
+# Authentication
+BETTER_AUTH_SECRET=your-secret-key-min-32-characters
 NEXT_PUBLIC_BETTER_AUTH_URL=http://localhost:3000
 
-DATABASE_URL=<your-database-url>You can start editing the page by modifying `src/app/page.tsx`. The page auto-updates as you edit the file.
-
-DATABASE_AUTH_TOKEN=<your-auth-token>
-
-```This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-
-
-4. Push the database schema:### Dev agent compatibility
-
-```bash
-
-pnpm db:pushThis project defines a AGENTS.md file for context and rules for coding agents. Feel free to use it as additional info when asking other external chat tools as well!
-
+# Database
+DATABASE_URL=file:./src/db/localdb.sqlite
 ```
 
-
-
-5. Run the development server:### Recommended dependencies
-
+4. **Initialize the database:**
 ```bash
+npm run db:push
+# or
+pnpm db:push
+```
 
-pnpm dev- If you build tables, it's highly recommended to store pagination, sorting and filtering state in search params. Use [nuqs](https://nuqs.dev/) for that. Use [TanStack Table](https://tanstack.com/table/latest) for base table components.
+This creates a local SQLite database with all required tables.
 
-```- If you really need client-side data fetching, use [SWR](https://swr.vercel.app/) or [TanStack Query](https://tanstack.com/query/v5/docs/framework/react/overview) instead of fetch calls in "useEffect" hooks.
-
-- If the manual validation and middleware boilerplate in your server actions get's too much, build your server actions with [next-safe-action](https://next-safe-action.dev/)
+5. **Start the development server:**
+```bash
+npm run dev
+# or
+pnpm dev
+```
 
 Open [http://localhost:3000](http://localhost:3000) to see the app!
 
+Open [http://localhost:3000](http://localhost:3000) to see the app!
 
+## 🎮 How to Use
 
-## 📁 Project Structure### Recommended MCPs
-
-
-
-```If you use tooling that allows integration of MCP servers, I recommend the following ones:
-
-src/
-
-├── actions/          # Server actions for mutations- [Context7 by upstash](https://upstash.com/blog/context7-mcp)
-
-├── app/              # Next.js app router pages    - Returns up-to-date info about all kinds of dependencies
-
-│   ├── discover/     # Swipe interface
-
-│   ├── my-books/     # Book management## Learn More
-
-│   ├── matches/      # Matches and messaging
-
-│   └── profile/      # User profileTo learn more about Next.js, take a look at the following resources:
-
-├── components/       # Reusable UI components
-
-├── db/               # Database schema and connection- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-
-└── lib/              # Utilities and helpers- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-```- [Next.js templates](https://vercel.com/templates/next.js) - need other functionality? Look here for other cool templates
-
-
-
-## 🎮 How to UseYou can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-
-1. **Sign Up** - Create an account with email
-2. **Complete Profile** - Add your bio, city, and favorite genres
-3. **Add Books** - List books you have and want
-4. **Discover** - Swipe through available books
+1. **Sign Up** - Create an account with your email
+2. **Complete Your Profile** - Add bio, location, and favorite genres
+3. **Add Books** 
+   - Navigate to "My Books"
+   - Add books you own to "Books I Have"
+   - Add books you're looking for to "Books I Want"
+4. **Discover Books**
+   - Swipe through available books
    - ❤️ Swipe right if interested
    - ❌ Swipe left to pass
-5. **Match** - When both users want each other's books
-6. **Chat** - Message your matches to coordinate the exchange
+5. **Match & Connect** - When both users want each other's books, you match!
+6. **Message** - Coordinate the book exchange via in-app messaging
+
+## 📁 Project Structure
+
+```
+TinderBooks/
+├── src/
+│   ├── actions/              # Server actions (add-book, remove-book, etc.)
+│   ├── app/                  # Next.js App Router pages
+│   │   ├── books/           # Book collection management
+│   │   ├── dashboard/       # Analytics dashboard
+│   │   ├── login/           # Authentication pages
+│   │   ├── signup/
+│   │   └── api/auth/        # better-auth API routes
+│   ├── components/           # React components
+│   │   ├── ui/              # shadcn/ui primitives
+│   │   ├── book-card.tsx    # Book display component
+│   │   ├── swipe-card.tsx   # Swipeable card interface
+│   │   └── ...
+│   ├── db/                   # Database layer
+│   │   ├── schema.ts        # Drizzle schema definitions
+│   │   └── index.ts         # Database client
+│   ├── lib/                  # Utilities
+│   │   ├── auth.ts          # better-auth configuration
+│   │   ├── auth-server.ts   # Server-side auth helpers
+│   │   └── utils.ts         # Shared utilities
+│   └── middleware.ts         # Route protection
+├── public/                   # Static assets
+├── AGENTS.md                 # AI agent coding guidelines
+└── drizzle.config.ts         # Drizzle ORM configuration
+```
 
 ## 🗄️ Database Schema
 
-- **user** - User accounts (from better-auth)
-- **userProfile** - Extended profile (bio, city, genres)
-- **book** - Books users have
-- **wantedBook** - Books users want
-- **swipe** - Swipe actions (like/pass)
+### Core Tables
+
+- **user** - User accounts (managed by better-auth)
+- **session** - User sessions
+- **account** - OAuth accounts
+- **verification** - Email verification tokens
+
+### BookSwap Tables
+
+- **userProfile** - Extended user data (bio, location, genres)
+- **book** - Book catalog (title, author, genre, condition)
+- **userBook** - User book relationships (have/want)
+- **swipe** - Swipe history (like/pass)
 - **match** - Successful matches between users
 - **message** - Chat messages
 
-## 📜 Scripts
+## 📜 Available Scripts
 
-- `pnpm dev` - Start development server
-- `pnpm build` - Build for production
-- `pnpm start` - Start production server
-- `pnpm lint` - Run linter
-- `pnpm format` - Format code
-- `pnpm db:push` - Push schema changes
-- `pnpm db:studio` - Open Drizzle Studio
+| Command | Description |
+|---------|-------------|
+| `npm run dev` | Start development server with Turbopack |
+| `npm run build` | Build for production |
+| `npm run start` | Start production server |
+| `npm run lint` | Run Biome linter |
+| `npm run format` | Format code with Biome |
+| `npm run db:push` | Push schema changes to database |
+| `npm run db:studio` | Open Drizzle Studio (database GUI) |
 
-## 🔒 Authentication
+## � Authentication
 
-BookSwap uses [better-auth](https://www.better-auth.com/) for authentication with:
-- Email/password authentication
-- Session management
-- Protected routes via middleware
+TinderBooks uses [better-auth](https://www.better-auth.com/) for secure authentication:
 
-## 🎨 Styling
+- **Email/Password Authentication** - Simple signup and login
+- **Session Management** - Secure session handling
+- **Protected Routes** - Middleware-based route protection
+- **Server Actions** - Secure server-side mutations
 
-- Custom color scheme in `src/app/globals.css`
-- shadcn/ui components for consistent design
-- Responsive design for mobile and desktop
+Protected routes include:
+- `/dashboard` - Analytics dashboard
+- `/books` - Book management
+- `/swipe` - Discovery interface
+- `/matches` - Match list
+- `/messages` - Chat interface
 
-## 🚀 Future Enhancements
+## 🎨 Design System
 
-- Geolocation filters ("Show users near me")
-- Book scanning via ISBN
-- Rating/reputation system
-- In-app notifications
-- Group swaps / community events
-- Image upload for book photos
-- Advanced search and filters
+### Colors & Theming
 
-## 📝 License
+Custom color palette defined in `src/app/globals.css`:
+- Uses CSS variables for light/dark mode support
+- Semantic color naming (primary, secondary, accent, etc.)
+- Consistent across all components
 
-This project is built as an MVP demonstration.
+### Components
+
+Built with [shadcn/ui](https://ui.shadcn.com/) for:
+- Consistency and accessibility
+- Full TypeScript support
+- Customizable and composable
+- Built on Radix UI primitives
+
+### Icons
+
+[Lucide React](https://lucide.dev/) icons throughout:
+- Consistent `size-4` class for button icons
+- Semantic naming
+- Tree-shakeable
+
+## 🔧 Development Guidelines
+
+### For AI Coding Agents
+
+This project includes an `AGENTS.md` file with:
+- Coding conventions and rules
+- File structure guidelines
+- Best practices for Next.js App Router
+- Server Action patterns
+- Component organization
+
+### Code Style
+
+- **File Naming:** snake_case for files, PascalCase for components
+- **Client Components:** Mark with `"use client"` directive
+- **Server Components:** Use `import "server-only"` for server-only code
+- **Server Actions:** One action per file, use Zod for validation
+- **Revalidation:** Always call `revalidatePath("/", "layout")` after mutations
+
+### Recommended Tools
+
+- **State Management:** Use URL search params with [nuqs](https://nuqs.dev/)
+- **Data Fetching:** [SWR](https://swr.vercel.app/) or [TanStack Query](https://tanstack.com/query/latest)
+- **Tables:** [TanStack Table](https://tanstack.com/table/latest) with shadcn theming
+- **Forms:** [React Hook Form](https://react-hook-form.com/) + Zod validation
+
+## 🌟 Future Enhancements
+
+- [ ] ISBN book scanning for easy additions
+- [ ] Geolocation-based discovery
+- [ ] User ratings and reputation system
+- [ ] Book condition photos
+- [ ] Push notifications for matches
+- [ ] Reading lists and recommendations
+- [ ] Community book clubs
+- [ ] Advanced search and filters
+- [ ] Social features (following, reviews)
+- [ ] Export/import book collections
+
+## 🚢 Deployment
+
+### Vercel (Recommended)
+
+1. Push to GitHub
+2. Import project in Vercel
+3. Add environment variables
+4. Deploy
+
+### Environment Variables for Production
+
+```env
+BETTER_AUTH_SECRET=<generate-secure-random-string>
+NEXT_PUBLIC_BETTER_AUTH_URL=<your-production-url>
+DATABASE_URL=<your-database-url>
+```
+
+### Database Options
+
+- **Development:** Local SQLite (included)
+- **Production:** [Turso](https://turso.tech/) - Serverless SQLite
+- **Alternative:** Any PostgreSQL/MySQL database with Drizzle ORM
+
+## 📚 Learn More
+
+- [Next.js Documentation](https://nextjs.org/docs) - Next.js features and API
+- [better-auth Documentation](https://www.better-auth.com/) - Authentication setup
+- [Drizzle ORM](https://orm.drizzle.team/) - Type-safe database queries
+- [shadcn/ui](https://ui.shadcn.com/) - UI component library
+- [Tailwind CSS](https://tailwindcss.com/) - Utility-first CSS
+
+## � License
+
+This project is available under the MIT License.
 
 ## 🤝 Contributing
 
-This is an MVP project. Feel free to fork and customize for your needs!
+Contributions are welcome! Feel free to:
+- Report bugs
+- Suggest features
+- Submit pull requests
+
+## 💬 Support
+
+For questions or issues:
+- Open an issue on GitHub
+- Check existing issues for solutions
 
 ---
 
-Built with ❤️ using Next.js and better-auth
+**Built with ❤️ using Next.js, better-auth, and modern web technologies**
+
+⭐ Star this repo if you find it helpful!
