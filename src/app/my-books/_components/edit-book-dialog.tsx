@@ -51,6 +51,7 @@ interface EditBookDialogProps {
     genre: string;
     condition: string;
     description: string | null;
+    imageUrl: string | null;
   };
 }
 
@@ -146,21 +147,23 @@ export function EditBookDialog({ book }: EditBookDialogProps) {
             <p className="text-xs text-muted-foreground mt-1">
               {imageFileName ? `Selected: ${imageFileName}` : "Upload to replace the cover image."}
             </p>
-            <div className="mt-2 flex items-center gap-2">
-              <input
-                id="removeBookImage"
-                type="checkbox"
-                checked={removeImage}
-                onChange={(e) => {
-                  setRemoveImage(e.target.checked);
-                  if (e.target.checked && fileRef.current) {
-                    fileRef.current.value = "";
-                    setImageFileName("");
-                  }
-                }}
-              />
-              <Label htmlFor="removeBookImage">Remove current image</Label>
-            </div>
+            {book.imageUrl && (
+              <div className="mt-2 flex items-center gap-2">
+                <input
+                  id="removeBookImage"
+                  type="checkbox"
+                  checked={removeImage}
+                  onChange={(e) => {
+                    setRemoveImage(e.target.checked);
+                    if (e.target.checked && fileRef.current) {
+                      fileRef.current.value = "";
+                      setImageFileName("");
+                    }
+                  }}
+                />
+                <Label htmlFor="removeBookImage">Remove current image</Label>
+              </div>
+            )}
           </div>
           <div>
             <Label htmlFor="description">Description</Label>

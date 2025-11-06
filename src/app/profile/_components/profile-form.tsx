@@ -32,9 +32,10 @@ interface ProfileFormProps {
     city: string | null;
     genres: string | null;
   } | null;
+  hasImage?: boolean;
 }
 
-export function ProfileForm({ existingProfile }: ProfileFormProps) {
+export function ProfileForm({ existingProfile, hasImage = false }: ProfileFormProps) {
   const [selectedGenres, setSelectedGenres] = useState<string[]>(
     existingProfile?.genres ? JSON.parse(existingProfile.genres) : [],
   );
@@ -85,21 +86,23 @@ export function ProfileForm({ existingProfile }: ProfileFormProps) {
         <p className="text-xs text-muted-foreground mt-1">
           {imageFileName ? `Selected: ${imageFileName}` : "Optional. Upload a profile photo (PNG, JPG, WEBP)."}
         </p>
-        <div className="mt-2 flex items-center gap-2">
-          <input
-            id="removeImage"
-            type="checkbox"
-            checked={removeImage}
-            onChange={(e) => {
-              setRemoveImage(e.target.checked);
-              if (e.target.checked && fileRef.current) {
-                fileRef.current.value = "";
-                setImageFileName("");
-              }
-            }}
-          />
-          <Label htmlFor="removeImage">Remove current image</Label>
-        </div>
+        {hasImage && (
+          <div className="mt-2 flex items-center gap-2">
+            <input
+              id="removeImage"
+              type="checkbox"
+              checked={removeImage}
+              onChange={(e) => {
+                setRemoveImage(e.target.checked);
+                if (e.target.checked && fileRef.current) {
+                  fileRef.current.value = "";
+                  setImageFileName("");
+                }
+              }}
+            />
+            <Label htmlFor="removeImage">Remove current image</Label>
+          </div>
+        )}
       </div>
       <div>
         <Label htmlFor="bio">Bio</Label>

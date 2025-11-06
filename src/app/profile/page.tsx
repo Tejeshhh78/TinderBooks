@@ -56,7 +56,7 @@ export default async function ProfilePage() {
         </p>
       </div>
 
-      <ProfileForm existingProfile={existingProfile} />
+      <ProfileForm existingProfile={existingProfile} hasImage={Boolean(session.user.image)} />
     </div>
   );
 }
