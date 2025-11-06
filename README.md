@@ -1,8 +1,8 @@
-# 📚 TinderBooks - Book Exchange Platform
+# 📚 BookSwap - Book Exchange Platform
 
 > Swipe, Match, and Exchange Books with Fellow Readers
 
-TinderBooks is a modern book exchange platform that combines social discovery with book trading. Swipe through available books, match with other readers, and coordinate book swaps - all in a beautifully designed interface.
+BookSwap is a modern book exchange platform that combines social discovery with book trading. Swipe through available books, match with other readers, and coordinate book swaps - all in a beautifully designed interface.
 
 [![Next.js](https://img.shields.io/badge/Next.js-15-black)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-blue)](https://www.typescriptlang.org/)
@@ -54,8 +54,8 @@ TinderBooks is a modern book exchange platform that combines social discovery wi
 
 1. **Clone the repository:**
 ```bash
-git clone https://github.com/Tejeshhh78/TinderBooks.git
-cd TinderBooks
+git clone https://github.com/Tejeshhh78/BookSwap.git
+cd BookSwap
 ```
 
 2. **Install dependencies:**
@@ -120,7 +120,7 @@ Open [http://localhost:3000](http://localhost:3000) to see the app!
 ## 📁 Project Structure
 
 ```
-TinderBooks/
+BookSwap/
 ├── src/
 │   ├── actions/              # Server actions (add-book, remove-book, etc.)
 │   ├── app/                  # Next.js App Router pages
@@ -179,7 +179,7 @@ TinderBooks/
 
 ## � Authentication
 
-TinderBooks uses [better-auth](https://www.better-auth.com/) for secure authentication:
+BookSwap uses [better-auth](https://www.better-auth.com/) for secure authentication:
 
 - **Email/Password Authentication** - Simple signup and login
 - **Session Management** - Secure session handling
