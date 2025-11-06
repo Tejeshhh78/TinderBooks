@@ -37,12 +37,11 @@ export function ProfileForm({ existingProfile }: ProfileFormProps) {
   const [selectedGenres, setSelectedGenres] = useState<string[]>(
     existingProfile?.genres ? JSON.parse(existingProfile.genres) : [],
   );
-  const [imageUrl, setImageUrl] = useState<string>("");
+  const [imageFileName, setImageFileName] = useState<string>("");
 
   const [_state, formAction, isPending] = useActionState(
     async (_prevState: unknown, formData: FormData) => {
-      formData.set("genres", JSON.stringify(selectedGenres));
-      formData.set("imageUrl", imageUrl);
+  formData.set("genres", JSON.stringify(selectedGenres));
       const result = await updateProfile(formData);
 
       if (result.success) {
@@ -68,17 +67,16 @@ export function ProfileForm({ existingProfile }: ProfileFormProps) {
       className="space-y-6 bg-card rounded-lg border p-6"
     >
       <div>
-        <Label htmlFor="imageUrl">Profile image URL</Label>
+        <Label htmlFor="imageFile">Profile image</Label>
         <Input
-          id="imageUrl"
-          name="imageUrl"
-          type="url"
-          placeholder="https://..."
-          value={imageUrl}
-          onChange={(e) => setImageUrl(e.target.value)}
+          id="imageFile"
+          name="imageFile"
+          type="file"
+          accept="image/png,image/jpeg,image/webp"
+          onChange={(e) => setImageFileName(e.target.files?.[0]?.name ?? "")}
         />
         <p className="text-xs text-muted-foreground mt-1">
-          Leave empty to use the default initial avatar.
+          {imageFileName ? `Selected: ${imageFileName}` : "Optional. Upload a profile photo (PNG, JPG, WEBP)."}
         </p>
       </div>
       <div>

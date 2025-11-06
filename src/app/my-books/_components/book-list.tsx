@@ -14,6 +14,7 @@ import { deleteBook } from "@/actions/delete-book";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import Image from "next/image";
+import { EditBookDialog } from "./edit-book-dialog";
 
 interface Book {
   id: string;
@@ -107,15 +108,18 @@ export function BookList({ books, inMatchingBookIds = [] }: BookListProps) {
             </div>
           </CardContent>
           <CardFooter>
-            <Button
-              variant="destructive"
-              size="sm"
-              onClick={() => handleDelete(book.id)}
-              className="w-full"
-            >
-              <Trash2 className="size-4 mr-2" />
-              Delete
-            </Button>
+            <div className="flex gap-2 w-full">
+              <EditBookDialog book={book} />
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={() => handleDelete(book.id)}
+                className="flex-1"
+              >
+                <Trash2 className="size-4 mr-2" />
+                Delete
+              </Button>
+            </div>
           </CardFooter>
         </Card>
       ))}

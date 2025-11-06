@@ -54,7 +54,7 @@ export function AddBookDialog() {
   // Controlled inputs to preserve user input on validation errors
   const [title, setTitle] = useState("");
   const [author, setAuthor] = useState("");
-  const [imageUrl, setImageUrl] = useState("");
+  const [imageFileName, setImageFileName] = useState("");
   const [description, setDescription] = useState("");
   const [selectedGenre, setSelectedGenre] = useState("");
   const [selectedCondition, setSelectedCondition] = useState("");
@@ -77,7 +77,7 @@ export function AddBookDialog() {
         // Reset all fields on success only
         setTitle("");
         setAuthor("");
-        setImageUrl("");
+        setImageFileName("");
         setDescription("");
         setSelectedGenre("");
         setSelectedCondition("");
@@ -169,15 +169,17 @@ export function AddBookDialog() {
           </div>
 
           <div>
-            <Label htmlFor="imageUrl">Image URL (optional)</Label>
+            <Label htmlFor="imageFile">Image (optional)</Label>
             <Input
-              id="imageUrl"
-              name="imageUrl"
-              type="url"
-              placeholder="https://..."
-              value={imageUrl}
-              onChange={(e) => setImageUrl(e.target.value)}
+              id="imageFile"
+              name="imageFile"
+              type="file"
+              accept="image/png,image/jpeg,image/webp"
+              onChange={(e) => setImageFileName(e.target.files?.[0]?.name ?? "")}
             />
+            <p className="text-xs text-muted-foreground mt-1">
+              {imageFileName ? `Selected: ${imageFileName}` : "Upload a cover image (PNG, JPG, WEBP)."}
+            </p>
           </div>
 
           <div>

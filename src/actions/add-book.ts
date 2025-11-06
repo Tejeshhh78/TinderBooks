@@ -8,6 +8,7 @@ import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { randomUUID } from "node:crypto";
+import { saveUploadedFile } from "@/lib/upload";
 
 const addBookSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -15,6 +16,7 @@ const addBookSchema = z.object({
   genre: z.string().min(1, "Genre is required"),
   condition: z.enum(["new", "like-new", "good", "fair", "poor"]),
   description: z.string().optional(),
+  // Deprecated: URL support retained, but file upload is preferred
   imageUrl: z.string().url().optional().or(z.literal("")),
 });
 
@@ -43,11 +45,19 @@ export async function addBook(formData: FormData) {
   }
 
   try {
+    let finalImageUrl: string | null = null;
+    const imageFile = formData.get("imageFile");
+    if (imageFile instanceof File && imageFile.size > 0) {
+      finalImageUrl = await saveUploadedFile(imageFile, "books");
+    } else {
+      finalImageUrl = parsed.data.imageUrl || null;
+    }
+
     await db.insert(book).values({
       id: randomUUID(),
       userId: session.user.id,
       ...parsed.data,
-      imageUrl: parsed.data.imageUrl || null,
+      imageUrl: finalImageUrl,
       description: parsed.data.description || null,
     });
 
