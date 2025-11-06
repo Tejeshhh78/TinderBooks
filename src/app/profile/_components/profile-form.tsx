@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, useActionState } from "react";
+import { useActionState } from "react";
 import { updateProfile } from "@/actions/update-profile";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
+import { useRef, useState } from "react";
 
 const GENRES = [
   "Fiction",
@@ -38,10 +39,15 @@ export function ProfileForm({ existingProfile }: ProfileFormProps) {
     existingProfile?.genres ? JSON.parse(existingProfile.genres) : [],
   );
   const [imageFileName, setImageFileName] = useState<string>("");
+  const [removeImage, setRemoveImage] = useState(false);
+  const fileRef = useRef<HTMLInputElement | null>(null);
 
   const [_state, formAction, isPending] = useActionState(
     async (_prevState: unknown, formData: FormData) => {
-  formData.set("genres", JSON.stringify(selectedGenres));
+      formData.set("genres", JSON.stringify(selectedGenres));
+      if (removeImage) {
+        formData.set("imageUrl", "");
+      }
       const result = await updateProfile(formData);
 
       if (result.success) {
@@ -73,11 +79,27 @@ export function ProfileForm({ existingProfile }: ProfileFormProps) {
           name="imageFile"
           type="file"
           accept="image/png,image/jpeg,image/webp"
+          ref={fileRef}
           onChange={(e) => setImageFileName(e.target.files?.[0]?.name ?? "")}
         />
         <p className="text-xs text-muted-foreground mt-1">
           {imageFileName ? `Selected: ${imageFileName}` : "Optional. Upload a profile photo (PNG, JPG, WEBP)."}
         </p>
+        <div className="mt-2 flex items-center gap-2">
+          <input
+            id="removeImage"
+            type="checkbox"
+            checked={removeImage}
+            onChange={(e) => {
+              setRemoveImage(e.target.checked);
+              if (e.target.checked && fileRef.current) {
+                fileRef.current.value = "";
+                setImageFileName("");
+              }
+            }}
+          />
+          <Label htmlFor="removeImage">Remove current image</Label>
+        </div>
       </div>
       <div>
         <Label htmlFor="bio">Bio</Label>

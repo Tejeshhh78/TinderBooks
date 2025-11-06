@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useRef, useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -59,12 +59,17 @@ export function EditBookDialog({ book }: EditBookDialogProps) {
   const [genre, setGenre] = useState(book.genre);
   const [condition, setCondition] = useState(book.condition);
   const [imageFileName, setImageFileName] = useState("");
+  const [removeImage, setRemoveImage] = useState(false);
+  const fileRef = useRef<HTMLInputElement | null>(null);
 
   const [_state, formAction, isPending] = useActionState(
     async (_prev: unknown, formData: FormData) => {
       formData.set("bookId", book.id);
       formData.set("genre", genre);
       formData.set("condition", condition);
+      if (removeImage) {
+        formData.set("imageUrl", "");
+      }
       const res = await updateBook(formData);
       if (res?.success) {
         toast.success("Book updated");
@@ -135,11 +140,27 @@ export function EditBookDialog({ book }: EditBookDialogProps) {
               name="imageFile"
               type="file"
               accept="image/png,image/jpeg,image/webp"
+              ref={fileRef}
               onChange={(e) => setImageFileName(e.target.files?.[0]?.name ?? "")}
             />
             <p className="text-xs text-muted-foreground mt-1">
               {imageFileName ? `Selected: ${imageFileName}` : "Upload to replace the cover image."}
             </p>
+            <div className="mt-2 flex items-center gap-2">
+              <input
+                id="removeBookImage"
+                type="checkbox"
+                checked={removeImage}
+                onChange={(e) => {
+                  setRemoveImage(e.target.checked);
+                  if (e.target.checked && fileRef.current) {
+                    fileRef.current.value = "";
+                    setImageFileName("");
+                  }
+                }}
+              />
+              <Label htmlFor="removeBookImage">Remove current image</Label>
+            </div>
           </div>
           <div>
             <Label htmlFor="description">Description</Label>
