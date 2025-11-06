@@ -54,8 +54,8 @@ BookSwap is a modern book exchange platform that combines social discovery with 
 
 1. **Clone the repository:**
 ```bash
-git clone https://github.com/Tejeshhh78/BookSwap.git
-cd BookSwap
+git clone https://github.com/Tejeshhh78/TinderBooks.git
+cd TinderBooks
 ```
 
 2. **Install dependencies:**
