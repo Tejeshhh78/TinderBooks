@@ -6,6 +6,9 @@ import { match, book, user, message } from "@/db/schema";
 import { eq, or, and, asc } from "drizzle-orm";
 import { ChatInterface } from "./_components/chat-interface";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 import Image from "next/image";
 
 interface PageProps {
@@ -72,6 +75,14 @@ export default async function MatchDetailPage({ params }: PageProps) {
 
   return (
     <div className="container mx-auto max-w-4xl py-8 px-4">
+      <div className="mb-4">
+        <Link href="/matches">
+          <Button variant="ghost" size="sm">
+            <ArrowLeft className="size-4 mr-2" />
+            Back to matches
+          </Button>
+        </Link>
+      </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
         <Card>
           <CardHeader>
