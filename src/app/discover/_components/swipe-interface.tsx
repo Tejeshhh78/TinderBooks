@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import {
   Card,
   CardContent,
@@ -41,29 +42,75 @@ export function SwipeInterface({ books }: SwipeInterfaceProps) {
   // Keep the initial total stable during the session to avoid shrinking totals after a swipe
   const initialTotalRef = useRef<number>(books.length);
 
+  // Pointer drag state for mouse/touch swiping
+  const dragStartX = useRef<number | null>(null);
+  const [dragX, setDragX] = useState(0);
+  const [dragging, setDragging] = useState(false);
+
   const currentBook = books[currentIndex];
 
-  const handleSwipe = useCallback(async (action: "like" | "pass") => {
-    if (isAnimating || !currentBook) return;
+  const handleSwipe = useCallback(
+    async (action: "like" | "pass") => {
+      if (isAnimating || !currentBook) return;
 
-    setIsAnimating(true);
-    setSwipeDirection(action === "like" ? "right" : "left");
+      setIsAnimating(true);
+      setSwipeDirection(action === "like" ? "right" : "left");
 
-    // Wait for animation
-    setTimeout(async () => {
-      const result = await swipeBook(currentBook.id, action);
+      // Wait for animation
+      setTimeout(async () => {
+        const result = await swipeBook(currentBook.id, action);
 
-      if (result.error) {
-        toast.error(result.error);
-      } else if (result.matched) {
-        toast.success("🎉 It's a match! You can now chat with the owner.");
+        if (result.error) {
+          toast.error(result.error);
+        } else if (result.matched) {
+          toast.success("🎉 It's a match! You can now chat with the owner.");
+        }
+
+        setCurrentIndex((prev) => prev + 1);
+        setIsAnimating(false);
+        setSwipeDirection(null);
+      }, 300);
+    },
+    [currentBook, isAnimating],
+  );
+
+  // Mouse/touch swipe handlers
+  const onPointerDown = useCallback(
+    (e: React.PointerEvent) => {
+      if (isAnimating) return;
+      dragStartX.current = e.clientX;
+      setDragging(true);
+      (e.target as Element).setPointerCapture?.(e.pointerId);
+    },
+    [isAnimating],
+  );
+
+  const onPointerMove = useCallback(
+    (e: React.PointerEvent) => {
+      if (!dragging || dragStartX.current === null) return;
+      const deltaX = e.clientX - dragStartX.current;
+      setDragX(deltaX);
+    },
+    [dragging],
+  );
+
+  const onPointerUp = useCallback(
+    (_e: React.PointerEvent) => {
+      if (!dragging) return;
+      const threshold = 100;
+      const dx = dragX;
+      setDragging(false);
+      setDragX(0);
+      dragStartX.current = null;
+
+      if (dx > threshold) {
+        void handleSwipe("like");
+      } else if (dx < -threshold) {
+        void handleSwipe("pass");
       }
-
-      setCurrentIndex((prev) => prev + 1);
-      setIsAnimating(false);
-      setSwipeDirection(null);
-    }, 300);
-  }, [currentBook, isAnimating]);
+    },
+    [dragging, dragX, handleSwipe],
+  );
 
   // Keyboard navigation: Left Arrow = pass, Right Arrow = like
   useEffect(() => {
@@ -108,25 +155,38 @@ export function SwipeInterface({ books }: SwipeInterfaceProps) {
   return (
     <div className="relative">
       <div className="mb-4 text-center text-sm text-muted-foreground">
-        {Math.min(currentIndex + 1, initialTotalRef.current)} of {initialTotalRef.current} books
+        {Math.min(currentIndex + 1, initialTotalRef.current)} of{" "}
+        {initialTotalRef.current} books
       </div>
 
       <div className="relative flex justify-center items-center min-h-[600px]">
         <Card
-          className={`w-full max-w-md transition-all duration-300 ${
+          onPointerDown={onPointerDown}
+          onPointerMove={onPointerMove}
+          onPointerUp={onPointerUp}
+          className={`w-full max-w-md transition-all duration-300 select-none ${
             swipeDirection === "left"
               ? "-translate-x-[200%] rotate-[-20deg] opacity-0"
               : swipeDirection === "right"
                 ? "translate-x-[200%] rotate-[20deg] opacity-0"
                 : ""
           }`}
+          style={
+            dragging && swipeDirection === null
+              ? {
+                  transform: `translateX(${dragX}px) rotate(${dragX / 20}deg)`,
+                }
+              : undefined
+          }
         >
           {currentBook.imageUrl && (
-            <div className="aspect-[3/4] w-full overflow-hidden rounded-t-lg">
-              <img
+            <div className="relative aspect-[3/4] w-full overflow-hidden rounded-t-lg">
+              <Image
                 src={currentBook.imageUrl}
                 alt={currentBook.title}
-                className="w-full h-full object-cover"
+                fill
+                sizes="(max-width: 768px) 100vw, 512px"
+                className="object-cover"
               />
             </div>
           )}
@@ -187,7 +247,7 @@ export function SwipeInterface({ books }: SwipeInterfaceProps) {
       </div>
 
       <div className="text-center mt-6 text-sm text-muted-foreground">
-        <p>Press ← or → on your keyboard to swipe</p>
+        <p>Press ← or → on your keyboard or drag the card with the mouse</p>
       </div>
     </div>
   );

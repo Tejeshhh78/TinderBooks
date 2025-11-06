@@ -51,6 +51,11 @@ const CONDITIONS = [
 
 export function AddBookDialog() {
   const [open, setOpen] = useState(false);
+  // Controlled inputs to preserve user input on validation errors
+  const [title, setTitle] = useState("");
+  const [author, setAuthor] = useState("");
+  const [imageUrl, setImageUrl] = useState("");
+  const [description, setDescription] = useState("");
   const [selectedGenre, setSelectedGenre] = useState("");
   const [selectedCondition, setSelectedCondition] = useState("");
 
@@ -69,6 +74,11 @@ export function AddBookDialog() {
       if (result.success) {
         toast.success("Book added successfully!");
         setOpen(false);
+        // Reset all fields on success only
+        setTitle("");
+        setAuthor("");
+        setImageUrl("");
+        setDescription("");
         setSelectedGenre("");
         setSelectedCondition("");
       } else {
@@ -98,12 +108,24 @@ export function AddBookDialog() {
         <form action={formAction} className="space-y-4">
           <div>
             <Label htmlFor="title">Title *</Label>
-            <Input id="title" name="title" required />
+            <Input
+              id="title"
+              name="title"
+              required
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+            />
           </div>
 
           <div>
             <Label htmlFor="author">Author *</Label>
-            <Input id="author" name="author" required />
+            <Input
+              id="author"
+              name="author"
+              required
+              value={author}
+              onChange={(e) => setAuthor(e.target.value)}
+            />
           </div>
 
           <div>
@@ -153,6 +175,8 @@ export function AddBookDialog() {
               name="imageUrl"
               type="url"
               placeholder="https://..."
+              value={imageUrl}
+              onChange={(e) => setImageUrl(e.target.value)}
             />
           </div>
 
@@ -164,6 +188,8 @@ export function AddBookDialog() {
               rows={3}
               className="w-full px-3 py-2 bg-background border rounded-md"
               placeholder="Any additional details about the book..."
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
             />
           </div>
 

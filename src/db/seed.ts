@@ -1,5 +1,5 @@
 import { config } from "dotenv";
-import { resolve } from "path";
+import { resolve } from "node:path";
 import { eq } from "drizzle-orm";
 
 // Load environment variables from .env.local FIRST

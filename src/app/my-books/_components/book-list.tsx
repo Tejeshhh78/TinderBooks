@@ -13,6 +13,7 @@ import { Trash2 } from "lucide-react";
 import { deleteBook } from "@/actions/delete-book";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
+import Image from "next/image";
 
 interface Book {
   id: string;
@@ -56,11 +57,13 @@ export function BookList({ books }: BookListProps) {
       {books.map((book) => (
         <Card key={book.id}>
           {book.imageUrl && (
-            <div className="aspect-[3/4] w-full overflow-hidden rounded-t-lg">
-              <img
+            <div className="relative aspect-[3/4] w-full overflow-hidden rounded-t-lg">
+              <Image
                 src={book.imageUrl}
                 alt={book.title}
-                className="w-full h-full object-cover"
+                fill
+                sizes="(max-width: 768px) 100vw, 512px"
+                className="object-cover"
               />
             </div>
           )}

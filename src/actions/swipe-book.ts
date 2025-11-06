@@ -27,7 +27,7 @@ export async function swipeBook(bookId: string, action: "like" | "pass") {
       action,
     });
 
-  // If it's a "like", check for potential matches
+    // If it's a "like", check for potential matches
     if (action === "like") {
       const likedBook = await db
         .select()

@@ -6,6 +6,7 @@ import { match, book, user, message } from "@/db/schema";
 import { eq, or, and, asc } from "drizzle-orm";
 import { ChatInterface } from "./_components/chat-interface";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import Image from "next/image";
 
 interface PageProps {
   params: Promise<{ matchId: string }>;
@@ -81,11 +82,15 @@ export default async function MatchDetailPage({ params }: PageProps) {
           <CardContent>
             <div className="flex items-center gap-3">
               {myBook.imageUrl && (
-                <img
-                  src={myBook.imageUrl}
-                  alt={myBook.title}
-                  className="w-16 h-20 object-cover rounded"
-                />
+                <div className="relative w-16 h-20">
+                  <Image
+                    src={myBook.imageUrl}
+                    alt={myBook.title}
+                    fill
+                    sizes="80px"
+                    className="object-cover rounded"
+                  />
+                </div>
               )}
               <div>
                 <p className="font-semibold">{myBook.title}</p>
@@ -104,11 +109,15 @@ export default async function MatchDetailPage({ params }: PageProps) {
           <CardContent>
             <div className="flex items-center gap-3">
               {theirBook.imageUrl && (
-                <img
-                  src={theirBook.imageUrl}
-                  alt={theirBook.title}
-                  className="w-16 h-20 object-cover rounded"
-                />
+                <div className="relative w-16 h-20">
+                  <Image
+                    src={theirBook.imageUrl}
+                    alt={theirBook.title}
+                    fill
+                    sizes="80px"
+                    className="object-cover rounded"
+                  />
+                </div>
               )}
               <div>
                 <p className="font-semibold">{theirBook.title}</p>
